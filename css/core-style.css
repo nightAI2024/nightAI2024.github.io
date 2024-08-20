@@ -503,11 +503,53 @@ img {
 .main-menu .navbar.navbar-expand-lg .nav-link {
   color: rgba(0, 0, 0, 0.75);
   text-transform: uppercase;
+  font-weight: bold;
 }
 
 .main-menu .navbar.navbar-expand-lg .nav-item.active .nav-link,
 .main-menu .navbar.navbar-expand-lg .nav-link:hover {
-  color: #ff0303;
+  /*color: #ff0303;*/
+
+}
+.nav-link {
+  position: relative;
+  padding: 10px 5px;
+  /*font-weight: bold;*/
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  font-weight: bold;
+}
+
+/* 윗줄과 아랫줄 설정 */
+.nav-link::before,
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 3px;
+  background-color: #007BFF; /* 윗줄 색상 */
+  transition: all 0.3s ease;
+}
+
+.nav-link::before {
+  top: 0;
+  left: 0;
+  background-color: #007BFF; /* 윗줄 파란색 */
+}
+
+.nav-link::after {
+  bottom: 0;
+  right: 0;
+  background-color: #FF4500; /* 아랫줄 주황색 */
+}
+
+/* hover 효과 */
+.nav-link:hover::before,
+.nav-link:hover::after {
+  width: 100%;
 }
 
 .main-menu .dropdown-menu.show {

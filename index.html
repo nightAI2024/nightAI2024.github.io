@@ -32,6 +32,30 @@
             font-weight: 400;
             font-style: normal;
         }
+
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-10%); }
+        }
+
+        #marquee-row {
+            display: flex;
+            flex-wrap: nowrap;
+            animation: marquee 10s linear infinite;
+        }
+
+        .video-post-thumb > img {
+            filter: grayscale(70%);
+            transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .video-post-thumb > img:hover {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+
+
     </style>
 
 </head>
@@ -39,135 +63,6 @@
 <body>
     <!-- Header Area Start -->
     <header class="header-area">
-<!--        <div class="top-header">-->
-<!--            <div class="container h-100">-->
-<!--                <div class="row h-100 align-items-center">-->
-<!--                    &lt;!&ndash; Breaking News Area &ndash;&gt;-->
-<!--                    <div class="col-12 col-md-6">-->
-<!--                        <div class="breaking-news-area">-->
-<!--                            <h5 class="breaking-news-title">news</h5>-->
-<!--                            <div id="breakingNewsTicker" class="ticker">-->
-<!--                                <ul>-->
-<!--                                    <li><a href="#">2024 대한민국 인공지능 대상 및 인공지능 기업인의 밤 개최 안내</a></li>-->
-<!--                                    <li><a href="#">행사 일정: 2024년 11월 14일 16:00 - 20:00</a></li>-->
-<!--                                    <li><a href="#">장소: 웨스틴 조선 (서울 시청앞)</a></li>-->
-<!--                                    <li><a href="#">행사 주최: IT조선, 한국인공지능협회</a></li>-->
-<!--                                    <li><a href="#">후원: 과학기술정보통신부, 산업통상자원부, 중소벤처기업부 등</a></li>-->
-<!--                                </ul>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; Stock News Area &ndash;&gt;-->
-<!--                    <div class="col-12 col-md-6">-->
-<!--                        <div class="stock-news-area">-->
-<!--                            <div id="stockNewsTicker" class="ticker">-->
-<!--                                <ul>-->
-<!--                                    <li>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>한국인공지능협회</span>-->
-<!--                                                <span>설립</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>2017</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>한국인공지능협회</span>-->
-<!--                                                <span>-</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index plus-index">-->
-<!--                                                <h4>2024</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </li>-->
-<!--                                    <li>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>IT조선</span>-->
-<!--                                                <span>설립</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>2009</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>IT조선</span>-->
-<!--                                                <span>-</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index plus-index">-->
-<!--                                                <h4>2024</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </li>-->
-<!--                                    &lt;!&ndash; <li>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>eur/usd</span>-->
-<!--                                                <span>1.1862</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>0.18</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>BTC/usd</span>-->
-<!--                                                <span>15.674.99</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index plus-index">-->
-<!--                                                <h4>8.60</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>ETH/usd</span>-->
-<!--                                                <span>674.99</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>13.60</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </li>-->
-<!--                                    <li>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>eur/usd</span>-->
-<!--                                                <span>1.1862</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>3.95</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>BTC/usd</span>-->
-<!--                                                <span>15.674.99</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index plus-index">-->
-<!--                                                <h4>4.78</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                        <div class="single-stock-report">-->
-<!--                                            <div class="stock-values">-->
-<!--                                                <span>ETH/usd</span>-->
-<!--                                                <span>674.99</span>-->
-<!--                                            </div>-->
-<!--                                            <div class="stock-index minus-index">-->
-<!--                                                <h4>11.37</h4>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </li> &ndash;&gt;-->
-<!--                                </ul>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-        <!-- Middle Header Area -->
         <div class="middle-header">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
@@ -177,12 +72,6 @@
                             <a href="index.html"><img src="img/core-img/logo.png" alt="logo"></a>
                         </div>
                     </div>
-                    <!-- Header Advert Area -->
-<!--                    <div class="col-12 col-md-8">-->
-<!--                        <div class="header-advert-area">-->
-<!--                            <a href="#"><img src="img/bg-img/top-advert.png" alt="header-add"></a>-->
-<!--                        </div>-->
-<!--                    </div>-->
                 </div>
             </div>
         </div>
@@ -190,38 +79,53 @@
         <div class="bottom-header">
             <div class="container h-100">
                 <div class="row h-100 align-items-center">
-                    <div class="col-12">
+                    <div class="col-12" style="display: flex; flex-direction: row-reverse;">
                         <div class="main-menu">
-                            <nav class="navbar navbar-expand-lg">
+                            <nav class="navbar navbar-expand-lg" >
                                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                                     data-target="#gazetteMenu" aria-controls="gazetteMenu" aria-expanded="false"
                                     aria-label="Toggle navigation">Menu</button>
                                 <div class="collapse navbar-collapse" id="gazetteMenu">
                                     <ul class="navbar-nav mr-auto">
-                                        <li class="nav-item active">
-                                            <a class="nav-link" href="#">2024 <span class="sr-only">(current)</span></a>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">소개</a>
                                         </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                                                role="button" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">대한민국 인공지능 대상</a>
-                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="1.html">소개</a>
-                                                <a class="dropdown-item" href="2.html">참가안내 (일정 및 심사)</a>
-                                                <a class="dropdown-item" href="3.html">수상혜택 & 역대수상</a>
-                                            </div>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">참가안내</a>
                                         </li>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">일정</a>
+                                        </li>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">심사</a>
+                                        </li>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">수상혜택</a>
+                                        </li>
+                                        <li class="nav-item" style="margin-right: 15px;">
+                                            <a class="nav-link" href="1.html">역대수상</a>
+                                        </li>
+<!--                                        <li class="nav-item dropdown">-->
+<!--                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"-->
+<!--                                                role="button" data-toggle="dropdown" aria-haspopup="true"-->
+<!--                                                aria-expanded="false">대한민국 인공지능 대상</a>-->
+<!--                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+<!--                                                <a class="dropdown-item" href="1.html">소개</a>-->
+<!--                                                <a class="dropdown-item" href="2.html">참가안내 (일정 및 심사)</a>-->
+<!--                                                <a class="dropdown-item" href="3.html">수상혜택 & 역대수상</a>-->
+<!--                                            </div>-->
+<!--                                        </li>-->
 
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                                                role="button" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">인공지능 기업인의 밤</a>
-                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="4.html">소개</a>
-                                                <a class="dropdown-item" href="5.html">참가안내 (일정 및 심사)</a>
-                                                <a class="dropdown-item" href="6.html">수상혜택 & 역대수상</a>
-                                            </div>
-                                        </li>
+<!--                                        <li class="nav-item dropdown">-->
+<!--                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"-->
+<!--                                                role="button" data-toggle="dropdown" aria-haspopup="true"-->
+<!--                                                aria-expanded="false">인공지능 기업인의 밤</a>-->
+<!--                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+<!--                                                <a class="dropdown-item" href="4.html">소개</a>-->
+<!--                                                <a class="dropdown-item" href="5.html">참가안내 (일정 및 심사)</a>-->
+<!--                                                <a class="dropdown-item" href="6.html">수상혜택 & 역대수상</a>-->
+<!--                                            </div>-->
+<!--                                        </li>-->
 
                                         <li class="nav-item">
                                             <a class="nav-link" href="contact.html">문의</a>
@@ -303,6 +207,7 @@
                         <a href="#"><span class="latest-news-time" style="background-color: #185d30">공동주최</span> IT조선 & 한국인공지능협회</a>
                     </li>
                 </ul>
+
 <!--                <ul class="marquee-content-items">-->
 <!--                    <li>-->
 <!--                        <a href="#"><span class="latest-news-time">16:00</span> 개회식이 진행됩니다.</a>-->
@@ -487,9 +392,35 @@
 <!--    </section>-->
 <!--    &lt;!&ndash; Catagory Posts Area End &ndash;&gt;-->
 
+
+        <div class="container my-5">
+            <div class="card p-4 mb-4">
+                <h1 class="h3 mb-3">제6회 2024 대한민국 인공지능 대상</h1>
+                <p class="mb-0">
+                    ‘혁신의 연결을 돕는 벤처썸머포럼’<br>
+                    선배 벤처기업, 스타트업, 투자자들이 연결되어 협력의 기회를 찾아보는 ONE DAY Meetup! 꼭 만나야 할 사람들과의 만남! 반가운 정부 정책과 자금지원 약속 발표! 시장을 리드하는 성공벤처 글로벌 스토리! 미래의 투자기회를 찾고 있는 투자자들의 찐 이야기! 와 함께 벤처인들과의 한여름을 “썸 SSUM”을 만들어가기 위한 즐거운 시간!
+                </p>
+            </div>
+
+            <div class="card p-4 mb-4">
+                <h2 class="h4 section-title">01 꼭 만나야 할 사람들과의 만남의 기회</h2>
+                <p class="mb-0">
+                    성공한 선배벤처와 스타트업은 오픈이노베이션 찬스를, 투자자는 성공투자처와 자금조달처를 발견할 수 있는 시간을, 상호 협력의 기회를 찾는 기회
+                </p>
+            </div>
+
+            <div class="card p-4">
+                <h2 class="h4 section-title">02 새로운 이야기, 생생한 현장 경험의 시간</h2>
+                <p class="mb-0">
+                    시장을 리드한 진짜 성공벤처의 도전스토리, 미래의 투자기회를 찾고 있는 투자자들의 선구안 등 연사들의 이야기와 참석자들간의 그룹토크에서 나누는 생생한 현장이야기로 새로운 관점을 발견하고 문제해결의 키를 찾는 시간
+                </p>
+            </div>
+        </div>
+
     <!-- Video Posts Area Start -->
     <section class="gazatte-video-post-area section_padding_100_70 bg-gray">
         <div class="container">
+
             <div class="gazette-heading">
                 <h4>연혁</h4>
             </div>
@@ -589,17 +520,41 @@
                         <h5><a target="_blank" href="https://it.chosun.com/news/articleView.html?idxno=2023092104555">[2023 AI대상] 산업 생태계 넘어 ‘생활 속 AI 시대’ 만든 주역들 한 자리에</a></h5>
                     </div>
                 </div>
-                <div class="col-12 col-md-12">
-                    <div class="single-video-post">
-                        <div class="video-post-thumb">
-                            <img src="img/new-img/2024_prize.png" alt="" style="object-fit: contain;">
-                        </div>
-                        <h5><a href="#">2024 대한민국 AI대상을 기다립니다.</a></h5>
-                    </div>
-                </div>
+<!--                <div class="col-12 col-md-12">-->
+<!--                    <div class="single-video-post">-->
+<!--                        <div class="video-post-thumb">-->
+<!--                            <img src="img/new-img/2024_prize.png" alt="" style="object-fit: contain;">-->
+<!--                        </div>-->
+<!--                        <h5><a href="#">2024 대한민국 AI대상을 기다립니다.</a></h5>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
         </div>
     </section>
+
+    <section>
+        <div class="row" id="marquee-row" style="padding: 15px 0;">
+            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+        </div>
+    </section>
+
+
+
     <!-- Video Posts Area End -->
 
     <!-- Footer Area Start -->
@@ -669,7 +624,6 @@
         </div>
     </footer>
     <!-- Footer Area End -->
-
     <!-- jQuery (Necessary for All JavaScript Plugins) -->
     <script src="js/jquery/jquery-2.2.4.min.js"></script>
     <!-- Popper js -->
