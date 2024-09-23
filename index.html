@@ -33,16 +33,31 @@
             font-style: normal;
         }
 
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+        /*@keyframes marquee {*/
+        /*    0% { transform: translateX(0); }*/
+        /*    100% { transform: translateX(-50%); }*/
+        /*}*/
 
-        #marquee-row {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow: hidden;
-            animation: marquee 10s linear infinite;
+        #slider {
+            overflow:hidden;
+            position:relative;
+            /*border:20px solid red;*/
+            /*width:1440px;*/
+            /*height:200px;*/
+        }
+        .image-box {
+            width:2160px;
+            display:flex;
+            flex-wrap:nowrap;
+            animation: bannermove 10s linear infinite;
+        }
+        @keyframes bannermove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(-50%, 0);
+            }
         }
 
 
@@ -287,27 +302,30 @@
         </div>
     </section>
 
-    <section>
-        <div class="row" id="marquee-row" style="padding: 15px 0;">
-            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-            <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
-
-
-
+    <section id="slider" >
+        <div class="row">
+            <div class="image-box" style="padding: 15px 0;">
+                <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp04.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp05.jpg" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp01.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp02.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+                <img src="img/core-img/sp03.png" width="160px" height="100px" alt="Natural" style="margin-right: 20px; filter: grayscale(100%);"/>
+            </div>
         </div>
+
     </section>
 
 
