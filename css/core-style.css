@@ -509,7 +509,6 @@ img {
 .main-menu .navbar.navbar-expand-lg .nav-item.active .nav-link,
 .main-menu .navbar.navbar-expand-lg .nav-link:hover {
   /*color: #ff0303;*/
-
 }
 .nav-link {
   position: relative;
@@ -530,20 +529,20 @@ img {
   position: absolute;
   width: 0;
   height: 3px;
-  background-color: #007BFF; /* 윗줄 색상 */
+  background-color: #007bff; /* 윗줄 색상 */
   transition: all 0.3s ease;
 }
 
 .nav-link::before {
   top: 0;
   left: 0;
-  background-color: #007BFF; /* 윗줄 파란색 */
+  background-color: #007bff; /* 윗줄 파란색 */
 }
 
 .nav-link::after {
   bottom: 0;
   right: 0;
-  background-color: #FF4500; /* 아랫줄 주황색 */
+  background-color: #ff4500; /* 아랫줄 주황색 */
 }
 
 /* hover 효과 */
@@ -980,8 +979,6 @@ img {
   height: 100%;
   object-fit: cover;
 }
-
-
 
 .single-video-post:hover .video-post-thumb:after {
   opacity: 1;
