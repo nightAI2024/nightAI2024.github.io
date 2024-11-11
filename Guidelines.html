@@ -36,6 +36,52 @@
             font-weight: 400;
             font-style: normal;
         }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        /* 테이블 헤더 스타일 */
+        thead th {
+            border: 1px solid black;
+            padding: 10px;
+            background-color: #d5d4d4;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* 테이블 바디 스타일 */
+        tbody td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        /* 헤더와 바디 텍스트 정렬 */
+        th,
+        td {
+            text-align: center;
+        }
+
+        /* 제목 스타일 */
+        h2 {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* 교차 배경색 (행을 번갈아 가며 색상 지정) */
+        #time tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+            /* 짝수 번째 행 */
+        }
+
+        #time tbody tr:nth-child(even) {
+            background-color: #ffffff;
+            /* 홀수 번째 행 */
+        }
     </style>
 
 </head>
@@ -139,7 +185,7 @@
                             <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*장소 : 서울 웨스틴 조선호텔 오키드룸(2F)</pre>
                             <br>
                             <span style="font-weight: bold; font-size: 1.1em;">▪ 시 간 표</span>
-                            <table style="border-collapse: collapse; width: 100%; margin-top: 5px;">
+                            <table id="time" style="border-collapse: collapse; width: 100%; margin-top: 5px;">
                                 <thead>
                                     <tr>
                                         <th
@@ -147,7 +193,7 @@
                                             시간</th>
                                         <th
                                             style="border: 1px solid black; padding: 5px; text-align: center; background-color: #d5d4d4; font-weight: bold">
-                                            세부 내용</th>
+                                            행사내용</th>
                                         <th
                                             style="border: 1px solid black; padding: 5px; text-align: center; background-color: #d5d4d4; font-weight: bold">
                                             비고</th>
@@ -155,67 +201,64 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">17:30 -
-                                            18:00
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">17:30 ~
                                         </td>
                                         <td style="border: 1px solid black; padding: 5px;">도착 및 인사</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;">호텔 2층
                                             오키드룸 등록데스크</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">18:00 -
-                                            18:02</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            18:00 - 18:02</td>
                                         <td style="border: 1px solid black; padding: 5px;">개회선언</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;">사회자</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">18:02 -
-                                            18:05</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            18:02 - 18:05</td>
                                         <td style="border: 1px solid black; padding: 5px;">개회사</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;">IT조선</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">18:05 -
-                                            18:20</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            18:05 - 18:15</td>
                                         <td style="border: 1px solid black; padding: 5px;">축사 · 환영사</td>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">국회의원 ·
-                                            한국인공지능협회</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">국회의원, 협회
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">18:20 -
-                                            18:40</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            18:15 - 18:30</td>
                                         <td style="border: 1px solid black; padding: 5px;">비전발표</td>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">각 부처, 기관별
-                                            발표</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">부처, 기관
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">18:40 -
-                                            18:45</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            18:30 - 18:35</td>
                                         <td style="border: 1px solid black; padding: 5px;">심사평</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;">심사위원장
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;"
-                                            rowspan="3">
-                                            18:45 - 19:30</td>
+                                            rowspan="3">18:35 - 19:15</td>
                                         <td style="border: 1px solid black; padding: 5px;" rowspan="3">시상식</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;"
-                                            rowspan="3">
-                                            본상<br>부문대상<br>특별상</td>
+                                            rowspan="3">특별상, 대상, 우수상, 부문상</td>
                                     </tr>
                                     <tr></tr>
                                     <tr></tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">19:30 -
-                                            19:35</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            19:15 - 19:20</td>
                                         <td style="border: 1px solid black; padding: 5px;">단체사진</td>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">수상사, VIP
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">수상자, VIP
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">19:35 -
-                                            21:00</td>
+                                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                            19:20 - 21:00</td>
                                         <td style="border: 1px solid black; padding: 5px;">만찬</td>
                                         <td style="border: 1px solid black; padding: 5px; text-align: center;">네트워킹</td>
                                     </tr>
