@@ -5,7 +5,19 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>CAIO 원우회</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <meta name="description" content="CAIO 원우회 회원의 상세 프로필, 경력, 연락처 정보를 확인하세요.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CAIO 원우회 네트워크">
+    <meta property="og:description" content="CAIO 원우회 회원의 상세 프로필, 경력, 연락처 정보를 확인하세요.">
+    <meta name="twitter:title" content="CAIO 원우회 네트워크">
+    <meta name="twitter:description" content="CAIO 원우회 회원의 상세 프로필, 경력, 연락처 정보를 확인하세요.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/nightAI2024/nightAI2024.github.io/refs/heads/main/img/og_image_c.png">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/nightAI2024/nightAI2024.github.io/refs/heads/main/img/og_image_c.png">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <!-- Supabase JavaScript Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -65,7 +77,7 @@
     <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <header
             class="sticky top-0 z-10 flex h-16 items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm px-4 justify-between border-b border-border-light dark:border-border-dark">
-            <a href="my_profile.html" class="flex size-10 shrink-0 items-center justify-center">
+            <a href="my_profile" class="flex size-10 shrink-0 items-center justify-center">
                 <div id="headerProfileImage" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 bg-gray-300"
                     data-alt="User profile picture">
                 </div>
@@ -97,7 +109,7 @@
                                 class="text-text-light-primary dark:text-text-dark-primary text-lg font-bold leading-tight">
                                 공지사항</h2>
                         </div>
-                        <a class="text-sm font-semibold text-primary hover:underline" href="notice_list.html">전체 보기</a>
+                        <a class="text-sm font-semibold text-primary hover:underline" href="notice_list">전체 보기</a>
                     </div>
                     <div id="noticeList" class="flex flex-col gap-4">
                         <p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">로딩 중...</p>
@@ -114,7 +126,7 @@
                                 class="text-text-light-primary dark:text-text-dark-primary text-lg font-bold leading-tight">
                                 커뮤니티</h2>
                         </div>
-                        <a class="text-sm font-semibold text-primary hover:underline" href="community.html">전체 보기</a>
+                        <a class="text-sm font-semibold text-primary hover:underline" href="community">전체 보기</a>
                     </div>
                     <div id="postList" class="flex flex-col gap-4">
                         <p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">로딩 중...</p>
@@ -124,7 +136,7 @@
             <section class="px-4 pt-2 pb-8">
                 <div class="grid grid-cols-2 gap-3">
                     <a class="flex flex-col gap-2 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
-                        href="contact.html">
+                        href="contact">
                         <div class="flex items-center justify-between">
                             <span class="material-symbols-outlined text-2xl text-primary">search</span>
                             <span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">arrow_forward_ios</span>
@@ -137,7 +149,7 @@
                         </div>
                     </a>
                     <a class="flex flex-col gap-2 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
-                        href="community.html">
+                        href="community">
                         <div class="flex items-center justify-between">
                             <span class="material-symbols-outlined text-2xl text-primary">forum</span>
                             <span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">arrow_forward_ios</span>
@@ -154,22 +166,22 @@
         </main>
         <nav
             class="fixed bottom-0 left-0 right-0 h-20 bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark flex justify-around items-center px-2">
-            <a class="flex flex-col items-center justify-center gap-1 w-full text-primary" href="main.html">
+            <a class="flex flex-col items-center justify-center gap-1 w-full text-primary" href="main">
                 <span class="material-symbols-outlined !text-3xl" style="font-variation-settings: 'FILL' 1;">home</span>
                 <span class="text-xs font-bold">홈</span>
             </a>
             <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
-                href="contact.html">
+                href="contact">
                 <span class="material-symbols-outlined !text-3xl">group</span>
                 <span class="text-xs font-medium">명부</span>
             </a>
             <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
-                href="community.html">
+                href="community">
                 <span class="material-symbols-outlined !text-3xl">chat</span>
                 <span class="text-xs font-medium">커뮤니티</span>
             </a>
             <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
-                href="my_profile.html">
+                href="my_profile">
                 <span class="material-symbols-outlined !text-3xl">person</span>
                 <span class="text-xs font-medium">마이페이지</span>
             </a>
