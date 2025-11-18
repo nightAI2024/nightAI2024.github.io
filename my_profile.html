@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CAIO Profile</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="font-display">
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden text-[#101922] dark:text-gray-200">
+        <header
+            class="sticky top-0 z-10 flex items-center justify-center bg-background-light dark:bg-background-dark p-4 pb-2">
+            <h1 class="text-lg font-bold">내 프로필</h1>
+        </header>
+        <main class="flex flex-col pb-24">
+            <div class="flex p-4 @container">
+                <div class="flex w-full flex-col items-center gap-4">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 bg-gray-200 dark:bg-gray-700"
+                            style='background-image: url("https://via.placeholder.com/150");'>
+                        </div>
+                        <div class="flex flex-col items-center justify-center">
+                            <p
+                                class="text-[#101922] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
+                                </p>
+                            <p
+                                class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal text-center">
+                                </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 pb-4">
+                <div class="flex w-full gap-3">
+                    <button
+                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] flex-1 gap-2">
+                        <span class="material-symbols-outlined text-xl">edit</span>
+                        <span class="truncate">프로필 수정</span>
+                    </button>
+                    <button
+                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-base font-bold leading-normal tracking-[0.015em] flex-1 gap-2">
+                        <span class="material-symbols-outlined text-xl">settings</span>
+                        <span class="truncate">정보 공개 설정</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2 p-4">
+                <div id="introCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-gray-800 p-4">
+                    <h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">소개</h2>
+                    <p id="introText" class="text-base font-normal leading-relaxed text-gray-700 dark:text-gray-300">로딩 중...</p>
+                </div>
+                <div id="contactCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-gray-800 p-4">
+                    <h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">연락처 정보</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">로딩 중...</p>
+                </div>
+                <div id="careerCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-gray-800 p-4">
+                    <h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">경력 정보</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">로딩 중...</p>
+                </div>
+                <div id="educationCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-gray-800 p-4">
+                    <h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">학력 정보</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">로딩 중...</p>
+                </div>
+            </div>
+            <div class="h-5"></div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/profile-utils.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/page-transition.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await requireAuth();
+            if (!session) return;
+
+            const user = await getCurrentUser();
+            const client = initSupabase();
+
+            // 프로필 수정 버튼
+            document.querySelectorAll('button')[0].addEventListener('click', () => {
+                smoothNavigate('my_profile_edit.html', 300);
+            });
+
+            // 정보 공개 설정 버튼
+            document.querySelectorAll('button')[1].addEventListener('click', () => {
+                smoothNavigate('my_profile_noti_edit.html', 300);
+            });
+
+            try {
+                // 프로필 및 개인정보 설정 로드
+                const { data: profile, error: profileError } = await client
+                    .from('profiles')
+                    .select('*, privacy_settings(*)')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                const privacySettings = profile.privacy_settings || {};
+
+                // 기수 정보 (자기 자신이므로 항상 같은 기수)
+                const userBatch = profile.batch;
+
+                // 연락처 정보: 같은 기수면 항상 공개, 다른 기수면 설정 확인
+                // 자기 자신의 프로필이므로 항상 공개
+                const canShowPhone = true; // 자기 자신이므로 항상 공개
+                const canShowEmail = true; // 자기 자신이므로 항상 공개
+
+                // 경력 로드
+                const { data: careers, error: careersError } = await client
+                    .from('careers')
+                    .select('*')
+                    .eq('profile_id', user.id)
+                    .order('order', { ascending: true });
+
+                if (careersError) throw careersError;
+
+                // 학력 로드
+                const { data: educations, error: educationsError } = await client
+                    .from('educations')
+                    .select('*')
+                    .eq('profile_id', user.id)
+                    .order('order', { ascending: true });
+
+                if (educationsError) throw educationsError;
+
+                // 프로필 이미지 설정
+                const profileImageEl = document.querySelector('.aspect-square');
+                setProfileImage(profileImageEl, profile);
+
+                // 이름과 직장 정보 업데이트
+                const nameContainer = document.querySelector('.flex.flex-col.items-center.gap-4');
+                const nameEl = nameContainer.querySelector('.text-\\[22px\\]');
+                const jobEl = nameEl.nextElementSibling;
+                
+                if (nameEl) {
+                    nameEl.textContent = profile.name || '이름 없음';
+                }
+                
+                // 최신 경력 정보 가져오기 (order가 가장 작은 것)
+                let displayCompany = profile.company || '';
+                let displayPosition = profile.position || '';
+                
+                if (careers && careers.length > 0) {
+                    const sortedCareers = [...careers].sort((a, b) => {
+                        const orderA = a.order !== null && a.order !== undefined ? a.order : 999;
+                        const orderB = b.order !== null && b.order !== undefined ? b.order : 999;
+                        return orderA - orderB;
+                    });
+                    const latestCareer = sortedCareers[0];
+                    if (latestCareer.company) displayCompany = latestCareer.company;
+                    if (latestCareer.position) displayPosition = latestCareer.position;
+                }
+                
+                if (jobEl) {
+                    if (displayCompany || displayPosition) {
+                        jobEl.textContent = `${displayCompany || ''} ${displayCompany && displayPosition ? '·' : ''} ${displayPosition || ''}`.trim();
+                    } else {
+                        jobEl.textContent = '직장 정보 없음';
+                    }
+                }
+
+                // 소개
+                const introText = document.getElementById('introText');
+                if (profile.introduction) {
+                    introText.textContent = profile.introduction;
+                } else {
+                    introText.textContent = '소개가 아직 작성되지 않았습니다.';
+                }
+
+                // 연락처 정보 (개인정보 공개 설정 반영)
+                const contactCard = document.getElementById('contactCard');
+                contactCard.innerHTML = '<h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">연락처 정보</h2>';
+                
+                // 다른 기수에게 비공개 설정 여부 확인
+                const isPhonePrivateToOtherBatch = privacySettings.show_phone === false;
+                const isEmailPrivateToOtherBatch = privacySettings.show_email === false;
+                
+                // 휴대폰 (자기 자신이므로 항상 공개)
+                if (canShowPhone) {
+                    const phoneItem = document.createElement('div');
+                    phoneItem.className = 'flex items-center gap-4';
+                    phoneItem.innerHTML = `
+                        <span class="material-symbols-outlined text-xl text-primary">phone_iphone</span>
+                        <div class="flex flex-col flex-1">
+                            <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
+                            <p class="text-sm font-medium">${escapeHtml(profile.phone || '미등록')}</p>
+                        </div>
+                    `;
+                    contactCard.appendChild(phoneItem);
+                } else {
+                    const phoneItem = document.createElement('div');
+                    phoneItem.className = 'flex items-center gap-4';
+                    phoneItem.innerHTML = `
+                        <span class="material-symbols-outlined text-xl text-gray-400">phone_iphone</span>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
+                            <p class="text-sm font-medium text-gray-400">비공개</p>
+                        </div>
+                    `;
+                    contactCard.appendChild(phoneItem);
+                }
+
+                // 이메일 (자기 자신이므로 항상 공개)
+                if (canShowEmail) {
+                    const emailItem = document.createElement('div');
+                    emailItem.className = 'flex items-center gap-4';
+                    emailItem.innerHTML = `
+                        <span class="material-symbols-outlined text-xl text-primary">alternate_email</span>
+                        <div class="flex flex-col flex-1">
+                            <p class="text-sm font-normal text-gray-500 dark:text-gray-400">이메일</p>
+                            <p class="text-sm font-medium">${escapeHtml(profile.email || '미등록')}</p>
+                        </div>
+                    `;
+                    contactCard.appendChild(emailItem);
+                } else {
+                    const emailItem = document.createElement('div');
+                    emailItem.className = 'flex items-center gap-4';
+                    emailItem.innerHTML = `
+                        <span class="material-symbols-outlined text-xl text-gray-400">alternate_email</span>
+                        <div class="flex flex-col">
+                            <p class="text-sm font-normal text-gray-500 dark:text-gray-400">이메일</p>
+                            <p class="text-sm font-medium text-gray-400">비공개</p>
+                        </div>
+                    `;
+                    contactCard.appendChild(emailItem);
+                }
+                
+                // 다른 기수에게 비공개 설정 안내 문구
+                if (isPhonePrivateToOtherBatch || isEmailPrivateToOtherBatch) {
+                    const noticeItem = document.createElement('div');
+                    noticeItem.className = 'flex items-start gap-2 mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800';
+                    noticeItem.innerHTML = `
+                        <span class="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400 mt-0.5 shrink-0">info</span>
+                        <p class="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                            다른 기수에겐 보이지 않도록 설정했어요
+                        </p>
+                    `;
+                    contactCard.appendChild(noticeItem);
+                }
+
+                // 경력 정보 (개인정보 공개 설정 반영)
+                const careerCard = document.getElementById('careerCard');
+                careerCard.innerHTML = '<h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">경력 정보</h2>';
+                
+                if (privacySettings.show_career !== false) {
+                    if (careers && careers.length > 0) {
+                        careers.forEach(career => {
+                            const careerItem = document.createElement('div');
+                            careerItem.className = 'flex items-start gap-4';
+                            careerItem.innerHTML = `
+                                <span class="material-symbols-outlined text-xl text-primary mt-1">business_center</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-medium">${escapeHtml(career.company || '')}</p>
+                                    <p class="text-sm font-normal text-gray-700 dark:text-gray-300">${escapeHtml(career.position || '')}</p>
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">${career.start_year || ''} - ${career.end_year || '현재'}</p>
+                                </div>
+                            `;
+                            careerCard.appendChild(careerItem);
+                        });
+                    } else {
+                        const noCareer = document.createElement('p');
+                        noCareer.className = 'text-sm text-gray-500 dark:text-gray-400';
+                        noCareer.textContent = '등록된 경력이 없습니다.';
+                        careerCard.appendChild(noCareer);
+                    }
+                } else {
+                    const privateCareer = document.createElement('p');
+                    privateCareer.className = 'text-sm text-gray-400';
+                    privateCareer.textContent = '비공개 설정됨';
+                    careerCard.appendChild(privateCareer);
+                }
+
+                // 학력 정보 (개인정보 공개 설정 반영)
+                const educationCard = document.getElementById('educationCard');
+                educationCard.innerHTML = '<h2 class="text-base font-bold leading-tight text-[#101922] dark:text-white">학력 정보</h2>';
+                
+                if (privacySettings.show_education !== false) {
+                    if (educations && educations.length > 0) {
+                        educations.forEach(education => {
+                            const educationItem = document.createElement('div');
+                            educationItem.className = 'flex items-start gap-4';
+                            educationItem.innerHTML = `
+                                <span class="material-symbols-outlined text-xl text-primary mt-1">school</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-medium">${escapeHtml(education.school || '')}</p>
+                                    <p class="text-sm font-normal text-gray-700 dark:text-gray-300">${escapeHtml(education.major || education.degree || '')}</p>
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">${education.start_year || ''} - ${education.end_year || '현재'}</p>
+                                </div>
+                            `;
+                            educationCard.appendChild(educationItem);
+                        });
+                    } else {
+                        const noEducation = document.createElement('p');
+                        noEducation.className = 'text-sm text-gray-500 dark:text-gray-400';
+                        noEducation.textContent = '등록된 학력이 없습니다.';
+                        educationCard.appendChild(noEducation);
+                    }
+                } else {
+                    const privateEducation = document.createElement('p');
+                    privateEducation.className = 'text-sm text-gray-400';
+                    privateEducation.textContent = '비공개 설정됨';
+                    educationCard.appendChild(privateEducation);
+                }
+
+                // 로그아웃 버튼 추가
+                const logoutBtnContainer = document.createElement('div');
+                logoutBtnContainer.className = 'px-4 pb-4';
+                logoutBtnContainer.innerHTML = `
+                    <button id="logoutBtn" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold">
+                        로그아웃
+                    </button>
+                `;
+                document.querySelector('main').appendChild(logoutBtnContainer);
+
+                document.getElementById('logoutBtn').addEventListener('click', async () => {
+                    showConfirm('로그아웃 하시겠습니까?', async () => {
+                        try {
+                            await signOut();
+                            showSuccess('로그아웃되었습니다.');
+                            setTimeout(() => {
+                                smoothNavigate('login.html');
+                            }, 800);
+                        } catch (error) {
+                            showError('로그아웃에 실패했습니다.');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                showError('프로필을 불러오는데 실패했습니다.');
+            }
+        });
+    </script>
+    
+    <!-- 하단 네비게이션 -->
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center px-2 z-30">
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="main.html">
+            <span class="material-symbols-outlined !text-3xl">home</span>
+            <span class="text-xs font-medium">홈</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="contact.html">
+            <span class="material-symbols-outlined !text-3xl">group</span>
+            <span class="text-xs font-medium">명부</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="community.html">
+            <span class="material-symbols-outlined !text-3xl">chat</span>
+            <span class="text-xs font-medium">커뮤니티</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-primary" href="my_profile.html">
+            <span class="material-symbols-outlined !text-3xl" style="font-variation-settings: 'FILL' 1;">person</span>
+            <span class="text-xs font-bold">마이페이지</span>
+        </a>
+    </nav>
+</body>
+
+</html>

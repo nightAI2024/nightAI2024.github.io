@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>게시글 상세</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="css/fonts.css" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+        }
+        .reply-indent {
+            margin-left: 3rem;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "foreground-light": "#ffffff",
+                        "foreground-dark": "#1a2836",
+                        "text-primary-light": "#111418",
+                        "text-primary-dark": "#f0f2f4",
+                        "text-secondary-light": "#617589",
+                        "text-secondary-dark": "#a0b3c6",
+                        "border-light": "#e3e8ed",
+                        "border-dark": "#2c3e50"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <header class="sticky top-0 z-20 flex flex-col bg-foreground-light dark:bg-foreground-dark border-b border-border-light dark:border-border-dark">
+            <div class="flex h-16 items-center px-4 justify-between">
+                <button id="backBtn" class="flex size-10 shrink-0 items-center justify-center text-text-primary-light dark:text-text-primary-dark cursor-pointer">
+                    <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                </button>
+                <h1 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight flex-1 text-center">
+                    게시글</h1>
+                <button id="moreBtn" class="flex size-10 shrink-0 items-center justify-center text-text-primary-light dark:text-text-primary-dark">
+                    <span class="material-symbols-outlined text-2xl">more_horiz</span>
+                </button>
+            </div>
+        </header>
+        <main class="flex-1 pb-24">
+            <div class="flex flex-col">
+                <!-- 게시글 작성자 정보 -->
+                <div id="postAuthorSection" class="sticky top-16 z-10 bg-foreground-light dark:bg-foreground-dark px-4 py-4 border-b border-border-light dark:border-border-dark">
+                    <p class="text-center text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                </div>
+                
+                <!-- 게시글 내용 -->
+                <div id="postContent" class="bg-foreground-light dark:bg-foreground-dark px-4 pt-6 pb-8">
+                    <p class="text-center text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                </div>
+                
+                <div class="h-2 bg-background-light dark:bg-background-dark"></div>
+                
+                <!-- 댓글 목록 -->
+                <div id="commentsList" class="flex flex-col bg-foreground-light dark:bg-foreground-dark pt-4">
+                    <p class="text-center text-text-secondary-light dark:text-text-secondary-dark py-4">댓글을 불러오는 중...</p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 댓글 입력창 -->
+        <footer class="fixed bottom-0 left-0 right-0 z-20 bg-foreground-light dark:bg-foreground-dark border-t border-border-light dark:border-border-dark">
+            <div id="replyInfo" class="hidden px-4 py-2 bg-gray-100 dark:bg-gray-800 text-sm">
+                <span id="replyText" class="text-text-secondary-light dark:text-text-secondary-dark"></span>
+                <button id="cancelReply" class="ml-2 text-primary font-semibold">취소</button>
+            </div>
+            <div class="flex items-center p-3 gap-2">
+                <div class="flex-1">
+                    <textarea id="commentInput"
+                        class="w-full rounded-lg border-none bg-background-light dark:bg-background-dark focus:ring-2 focus:ring-primary text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark text-base py-2.5 px-4 resize-none"
+                        placeholder="댓글을 입력하세요..." rows="1"></textarea>
+                </div>
+                <button id="submitComment" class="flex items-center justify-center w-10 h-10 shrink-0 rounded-lg bg-primary text-white hover:bg-primary/90">
+                    <span class="material-symbols-outlined text-2xl">arrow_upward</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/community.js"></script>
+    <script src="js/profile-utils.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/page-transition.js"></script>
+
+    <script>
+        let postId = null;
+        let currentUser = null;
+        let postData = null;
+        let replyingTo = null; // 답글 달 댓글 ID
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 로그인 확인
+            const session = await requireAuth();
+            if (!session) return;
+
+            currentUser = await getCurrentUser();
+
+            // URL에서 게시글 ID 가져오기
+            const params = new URLSearchParams(window.location.search);
+            postId = params.get('id');
+
+            if (!postId) {
+                showError('게시글을 찾을 수 없습니다.');
+                setTimeout(() => window.history.back(), 2000);
+                return;
+            }
+
+            // 게시글 로드
+            await loadPost();
+            await loadComments();
+
+            // 이벤트 리스너
+            document.getElementById('backBtn').addEventListener('click', () => {
+                smoothNavigate('community.html', 300);
+            });
+            document.getElementById('submitComment').addEventListener('click', submitComment);
+            document.getElementById('cancelReply').addEventListener('click', cancelReply);
+            document.getElementById('moreBtn').addEventListener('click', showPostMenu);
+            
+            // Enter로 댓글 전송 (Shift+Enter는 줄바꿈)
+            document.getElementById('commentInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submitComment();
+                }
+            });
+        });
+
+        async function loadPost() {
+            try {
+                const client = initSupabase();
+                
+                const { data: post, error } = await client
+                    .from('posts')
+                    .select(`
+                        *,
+                        profiles:author_id (*),
+                        post_links (*)
+                    `)
+                    .eq('id', postId)
+                    .single();
+
+                if (error) throw error;
+                
+                postData = post;
+
+                // 작성자 정보 표시
+                const authorSection = document.getElementById('postAuthorSection');
+                authorSection.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="h-12 w-12 rounded-full overflow-hidden flex items-center justify-center">
+                            ${createProfileAvatar(post.profiles, 'lg')}
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-text-primary-light dark:text-text-primary-dark text-base font-semibold leading-normal">
+                                    ${escapeHtml(post.profiles?.name || '익명')}</p>
+                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${post.profiles?.batch || '?'}기</span>
+                            </div>
+                            <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal">
+                                ${escapeHtml(post.profiles?.company || '')}${post.profiles?.position ? ', ' + escapeHtml(post.profiles.position) : ''} · ${formatDate(post.created_at)}</p>
+                        </div>
+                    </div>
+                `;
+
+                // 좋아요 수 가져오기
+                const { count: likeCount } = await client.from('post_likes').select('*', { count: 'exact', head: true }).eq('post_id', postId);
+                const { data: userLike } = await client.from('post_likes').select('id').eq('post_id', postId).eq('user_id', currentUser.id).single();
+
+                // 댓글 수 가져오기
+                const { count: commentCount } = await client.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', postId).eq('is_deleted', false);
+
+                // 게시글 내용 표시
+                const contentSection = document.getElementById('postContent');
+                let linksHtml = '';
+                if (post.post_links && post.post_links.length > 0) {
+                    linksHtml = '<div class="mt-8 space-y-2.5">' + post.post_links.map(link => {
+                        const safeUrl = link.url || '#';
+                        let subtitle = safeUrl;
+                        try {
+                            const parsed = new URL(safeUrl);
+                            subtitle = parsed.hostname;
+                        } catch (err) {
+                            subtitle = safeUrl;
+                        }
+
+                        return `
+                        <a class="flex items-center gap-3 rounded-xl border border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark p-3 shadow-sm transition-colors hover:bg-gray-50 dark:hover:bg-white/5" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined" style="font-size: 22px;">link</span>
+                            </div>
+                            <div class="flex-1 min-w-0 overflow-hidden">
+                                <p class="truncate text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">${escapeHtml(link.title || safeUrl)}</p>
+                                <p class="truncate text-xs text-text-secondary-light dark:text-text-secondary-dark">${escapeHtml(subtitle)}</p>
+                            </div>
+                            <span class="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark">open_in_new</span>
+                        </a>
+                    `;
+                    }).join('') + '</div>';
+                }
+
+                contentSection.innerHTML = `
+                    <p class="text-text-primary-light dark:text-text-primary-dark text-base font-normal leading-relaxed whitespace-pre-wrap">${escapeHtml(post.content)}</p>
+                    ${linksHtml}
+                    <div class="mt-8 flex items-center gap-6 text-text-secondary-light dark:text-text-secondary-dark">
+                        <button id="likeBtn" class="flex items-center gap-1.5 ${userLike ? 'text-primary' : ''}">
+                            <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' ${userLike ? '1' : '0'};">thumb_up</span>
+                            <span class="text-sm font-${userLike ? 'bold' : 'medium'}">추천 ${likeCount || 0}</span>
+                        </button>
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-xl">chat_bubble_outline</span>
+                            <span class="text-sm font-medium">댓글 ${commentCount || 0}</span>
+                        </div>
+                    </div>
+                `;
+
+                // 좋아요 버튼 이벤트
+                document.getElementById('likeBtn').addEventListener('click', toggleLike);
+
+            } catch (error) {
+                showError('게시글을 불러오는데 실패했습니다.');
+                setTimeout(() => window.history.back(), 2000);
+            }
+        }
+
+        async function loadComments() {
+            try {
+                const client = initSupabase();
+                
+                // 삭제된 댓글도 표시 (is_deleted 필터 제거)
+                const { data: comments, error } = await client
+                    .from('comments')
+                    .select(`
+                        *,
+                        profiles:author_id (*)
+                    `)
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                displayComments(comments);
+            } catch (error) {
+                document.getElementById('commentsList').innerHTML = 
+                    '<p class="text-center text-red-500 py-4">댓글을 불러오는데 실패했습니다.</p>';
+            }
+        }
+
+        function displayComments(comments) {
+            const commentsEl = document.getElementById('commentsList');
+            
+            if (!comments || comments.length === 0) {
+                commentsEl.innerHTML = '<p class="text-center text-text-secondary-light dark:text-text-secondary-dark py-4">첫 번째 댓글을 남겨보세요!</p>';
+                return;
+            }
+
+            // 댓글과 대댓글 분리
+            const topLevelComments = comments.filter(c => !c.parent_comment_id);
+            const replies = comments.filter(c => c.parent_comment_id);
+
+            let html = '';
+            topLevelComments.forEach(comment => {
+                // 대댓글이 있는지 확인 (삭제되지 않은 대댓글)
+                const commentReplies = replies.filter(r => r.parent_comment_id === comment.id);
+                const hasReplies = commentReplies.some(r => !r.is_deleted);
+                
+                html += renderComment(comment, false, hasReplies);
+                
+                // 대댓글 표시
+                commentReplies.forEach(reply => {
+                    html += renderComment(reply, true, false);
+                });
+            });
+
+            commentsEl.innerHTML = html;
+
+            // 답글 버튼 이벤트 추가
+            document.querySelectorAll('[data-reply-to]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const commentId = e.currentTarget.getAttribute('data-reply-to');
+                    const authorName = e.currentTarget.getAttribute('data-author-name');
+                    setReplyingTo(commentId, authorName);
+                });
+            });
+        }
+
+        function renderComment(comment, isReply, hasReplies = false) {
+            const isAuthor = comment.author_id === currentUser?.id;
+            const isDeleted = comment.is_deleted;
+            
+            // 삭제된 댓글 표시
+            if (isDeleted) {
+                return `
+                    <div class="flex gap-3 px-4 py-3 ${isReply ? 'reply-indent bg-gray-50 dark:bg-gray-900/20' : ''}">
+                        <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mt-1 shrink-0">
+                            <span class="material-symbols-outlined text-gray-400">person_off</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm italic mt-2">삭제된 댓글입니다.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="flex gap-3 px-4 py-3 ${isReply ? 'reply-indent bg-gray-50 dark:bg-gray-900/20' : ''}" data-comment-id="${comment.id}">
+                    <div class="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center mt-1 shrink-0">
+                        ${createProfileAvatar(comment.profiles, 'md')}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-text-primary-light dark:text-text-primary-dark text-sm font-semibold">${escapeHtml(comment.profiles?.name || '익명')}</p>
+                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${comment.profiles?.batch || '?'}기</span>
+                            </div>
+                            ${isAuthor ? `
+                                <button class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary" onclick="showCommentMenu('${comment.id}', ${hasReplies})">
+                                    <span class="material-symbols-outlined text-lg">more_horiz</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <p class="comment-content-${comment.id} text-text-primary-light dark:text-text-primary-dark text-base leading-relaxed mt-1 whitespace-pre-wrap break-words">${escapeHtml(comment.content)}</p>
+                        <div class="flex items-center gap-4 mt-2 text-text-secondary-light dark:text-text-secondary-dark">
+                            <p class="text-xs">${formatDate(comment.created_at)}</p>
+                            ${!isReply ? `<button class="text-xs font-semibold hover:text-primary" data-reply-to="${comment.id}" data-author-name="${escapeHtml(comment.profiles?.name || '익명')}">답글 달기</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setReplyingTo(commentId, authorName) {
+            replyingTo = commentId;
+            document.getElementById('replyInfo').classList.remove('hidden');
+            document.getElementById('replyText').textContent = `${authorName}님에게 답글 작성 중`;
+            document.getElementById('commentInput').focus();
+        }
+
+        function cancelReply() {
+            replyingTo = null;
+            document.getElementById('replyInfo').classList.add('hidden');
+        }
+
+        async function submitComment() {
+            const content = document.getElementById('commentInput').value.trim();
+            
+            if (!content) {
+                showWarning('댓글 내용을 입력해주세요.');
+                return;
+            }
+
+            try {
+                const client = initSupabase();
+                
+                const { error } = await client
+                    .from('comments')
+                    .insert({
+                        post_id: postId,
+                        parent_comment_id: replyingTo,
+                        author_id: currentUser.id,
+                        content: content
+                    });
+
+                if (error) throw error;
+
+                // 입력창 초기화
+                document.getElementById('commentInput').value = '';
+                cancelReply();
+
+                showSuccess('댓글이 작성되었습니다.');
+                
+                // 부드러운 새로고침
+                setTimeout(() => {
+                    smoothReload();
+                }, 500);
+
+            } catch (error) {
+                showError('댓글 작성에 실패했습니다.');
+            }
+        }
+
+        async function toggleLike() {
+            try {
+                const client = initSupabase();
+                const { data: existingLike } = await client
+                    .from('post_likes')
+                    .select('id')
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (existingLike) {
+                    // 좋아요 취소
+                    await client.from('post_likes').delete().eq('id', existingLike.id);
+                } else {
+                    // 좋아요 추가
+                    await client.from('post_likes').insert({
+                        post_id: postId,
+                        user_id: currentUser.id
+                    });
+                }
+
+                // 부드럽게 새로고침
+                setTimeout(() => {
+                    smoothReload();
+                }, 200);
+            } catch (error) {
+                // 좋아요 처리 실패 무시
+            }
+        }
+
+        async function showPostMenu() {
+            if (!postData) {
+                showWarning('게시글 정보를 불러오지 못했습니다.');
+                return;
+            }
+
+            const [canManage, adminInfo] = await Promise.all([
+                canDeletePost(postData.author_id),
+                getAdminInfo()
+            ]);
+
+            if (!canManage && !adminInfo) {
+                showWarning('게시글을 수정하거나 삭제할 권한이 없습니다.');
+                return;
+            }
+
+            const isAdmin = !!adminInfo;
+            const isOwnPost = postData.author_id === currentUser.id;
+            const menuHtml = `
+                <div id="postMenuOverlay" class="fixed inset-0 bg-black/50 z-50 flex items-end" style="animation: fadeIn 0.2s ease;">
+                    <div class="w-full bg-white dark:bg-gray-800 rounded-t-2xl p-4" style="animation: slideUp 0.3s ease;">
+                        ${isOwnPost ? `
+                            <button id="editPostBtn" class="w-full py-4 text-left text-base font-medium text-text-primary-light dark:text-text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-4">
+                                <span class="material-symbols-outlined align-middle mr-2">edit</span>
+                                수정하기
+                            </button>
+                        ` : ''}
+                        <button id="deletePostBtn" class="w-full py-4 text-left text-base font-medium text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-4">
+                            <span class="material-symbols-outlined align-middle mr-2">delete</span>
+                            삭제하기${isAdmin && !isOwnPost ? ' (관리자 권한)' : ''}
+                        </button>
+                        <button id="cancelMenuBtn" class="w-full py-4 text-center text-base font-medium text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mt-2">
+                            취소
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // 메뉴 표시
+            document.body.insertAdjacentHTML('beforeend', menuHtml);
+
+            // 이벤트 리스너
+            if (isOwnPost) {
+                document.getElementById('editPostBtn')?.addEventListener('click', editPost);
+            }
+            document.getElementById('deletePostBtn').addEventListener('click', deletePost);
+            document.getElementById('cancelMenuBtn').addEventListener('click', closePostMenu);
+            document.getElementById('postMenuOverlay').addEventListener('click', (e) => {
+                if (e.target.id === 'postMenuOverlay') closePostMenu();
+            });
+        }
+
+        function closePostMenu() {
+            const menu = document.getElementById('postMenuOverlay');
+            if (menu) menu.remove();
+        }
+
+        function editPost() {
+            closePostMenu();
+            smoothNavigate(`community_write.html?edit=${postId}`, 300);
+        }
+
+        async function deletePost() {
+            closePostMenu();
+
+            const adminInfo = await getAdminInfo();
+            const isOwnPost = postData?.author_id === currentUser?.id;
+
+            if (!isOwnPost && !adminInfo) {
+                showError('게시글을 삭제할 권한이 없습니다.');
+                return;
+            }
+
+            const isAdminDeletion = !!adminInfo && !isOwnPost;
+
+            showConfirm('정말 이 게시글을 삭제하시겠습니까?', async () => {
+                await performDelete(isAdminDeletion, adminInfo);
+            });
+        }
+
+        async function performDelete(isAdminDeletion = false, adminInfo = null) {
+            try {
+                const client = initSupabase();
+                if (!client) {
+                    showError('Supabase 클라이언트를 초기화할 수 없습니다.');
+                    return;
+                }
+                
+                // 게시글 삭제 (소프트 삭제)
+                // 주의: .select()를 사용하면 SELECT 정책(is_deleted = false)에 걸릴 수 있음
+
+                const updatePayload = { is_deleted: true };
+                if (isAdminDeletion && postData && Object.prototype.hasOwnProperty.call(postData, 'deleted_by_admin')) {
+                    updatePayload.deleted_by_admin = true;
+                }
+
+                const { error } = await client
+                    .from('posts')
+                    .update(updatePayload)
+                    .eq('id', postId);
+
+                if (error) {
+                    throw error;
+                }
+
+                showSuccess('게시글이 삭제되었습니다.');
+                setTimeout(() => {
+                    smoothNavigate('community.html');
+                }, 1000);
+            } catch (error) {
+                showError('게시글 삭제에 실패했습니다.');
+            }
+        }
+
+        // 댓글 메뉴 표시
+        function showCommentMenu(commentId, hasReplies) {
+            const menuHtml = `
+                <div id="commentMenuOverlay" class="fixed inset-0 bg-black/50 z-50 flex items-end" style="animation: fadeIn 0.2s ease;">
+                    <div class="w-full bg-white dark:bg-gray-800 rounded-t-2xl p-4" style="animation: slideUp 0.3s ease;">
+                        <div class="flex flex-col gap-2">
+                            ${!hasReplies ? `
+                                <button onclick="editComment('${commentId}')" class="w-full py-3 text-left text-primary font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-4">
+                                    수정하기
+                                </button>
+                            ` : ''}
+                            <button onclick="deleteComment('${commentId}')" class="w-full py-3 text-left text-red-500 font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-4">
+                                삭제하기
+                            </button>
+                            <button onclick="closeCommentMenu()" class="w-full py-3 text-left text-gray-600 dark:text-gray-400 font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-4">
+                                취소
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', menuHtml);
+            
+            document.getElementById('commentMenuOverlay').addEventListener('click', (e) => {
+                if (e.target.id === 'commentMenuOverlay') closeCommentMenu();
+            });
+        }
+
+        function closeCommentMenu() {
+            const overlay = document.getElementById('commentMenuOverlay');
+            if (overlay) overlay.remove();
+        }
+
+        // 댓글 수정
+        async function editComment(commentId) {
+            closeCommentMenu();
+            
+            try {
+                const client = initSupabase();
+                
+                // 댓글 내용 가져오기
+                const { data: comment, error: fetchError } = await client
+                    .from('comments')
+                    .select('content')
+                    .eq('id', commentId)
+                    .single();
+                
+                if (fetchError) throw fetchError;
+                
+                // 수정 UI 표시
+                const contentEl = document.querySelector(`.comment-content-${commentId}`);
+                const originalContent = comment.content;
+                
+                contentEl.innerHTML = `
+                    <textarea id="edit-textarea-${commentId}" 
+                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark text-base py-2 px-3 resize-none"
+                        rows="3">${escapeHtml(originalContent)}</textarea>
+                    <div class="flex gap-2 mt-2">
+                        <button onclick="saveCommentEdit('${commentId}', '${commentId}')" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90">
+                            저장
+                        </button>
+                        <button onclick="cancelCommentEdit('${commentId}', \`${escapeHtml(originalContent).replace(/`/g, '\\`')}\`)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
+                            취소
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById(`edit-textarea-${commentId}`).focus();
+            } catch (error) {
+                showError('댓글을 수정할 수 없습니다.');
+            }
+        }
+
+        // 댓글 수정 저장
+        async function saveCommentEdit(commentId, textareaId) {
+            const textarea = document.getElementById(`edit-textarea-${textareaId}`);
+            const newContent = textarea.value.trim();
+            
+            if (!newContent) {
+                showWarning('댓글 내용을 입력해주세요.');
+                return;
+            }
+            
+            try {
+                const client = initSupabase();
+                
+                const { error } = await client
+                    .from('comments')
+                    .update({ content: newContent })
+                    .eq('id', commentId);
+                
+                if (error) throw error;
+                
+                showSuccess('댓글이 수정되었습니다.');
+                setTimeout(() => {
+                    smoothReload();
+                }, 500);
+            } catch (error) {
+                showError('댓글 수정에 실패했습니다.');
+            }
+        }
+
+        // 댓글 수정 취소
+        function cancelCommentEdit(commentId, originalContent) {
+            const contentEl = document.querySelector(`.comment-content-${commentId}`);
+            contentEl.innerHTML = escapeHtml(originalContent);
+        }
+
+        // 댓글 삭제
+        async function deleteComment(commentId) {
+            closeCommentMenu();
+            
+            showConfirm('정말 이 댓글을 삭제하시겠습니까?', async () => {
+                try {
+                    const client = initSupabase();
+                    
+                    // 댓글 정보와 대댓글 여부 확인
+                    const { data: comment, error: fetchError } = await client
+                        .from('comments')
+                        .select('author_id, parent_comment_id')
+                        .eq('id', commentId)
+                        .single();
+                    
+                    if (fetchError) {
+                        throw fetchError;
+                    }
+                    
+                    // 본인 댓글인지 확인
+                    if (comment.author_id !== currentUser.id) {
+                        showError('본인이 작성한 댓글만 삭제할 수 있습니다.');
+                        return;
+                    }
+                    
+                    // 대댓글이 있는지 확인 (삭제되지 않은 대댓글만 체크)
+                    const { data: replies, error: repliesError } = await client
+                        .from('comments')
+                        .select('id')
+                        .eq('parent_comment_id', commentId)
+                        .eq('is_deleted', false);
+                    
+                    if (repliesError) {
+                        // 에러가 나도 계속 진행 (대댓글 체크 실패는 치명적이지 않음)
+                    }
+                    
+                    const hasReplies = replies && replies.length > 0;
+                    
+                    // 대댓글이 있으면 소프트 삭제만 수행 (실제 DELETE 하지 않음)
+                    if (hasReplies) {
+                        const { error: updateError } = await client
+                            .from('comments')
+                            .update({ 
+                                is_deleted: true,
+                                content: '삭제된 댓글입니다.'
+                            })
+                            .eq('id', commentId);
+                        
+                        if (updateError) {
+                            throw updateError;
+                        }
+                        
+                        showSuccess('댓글이 삭제되었습니다. (대댓글이 있어 내용만 삭제되었습니다)');
+                    } else {
+                        // 대댓글이 없으면 실제 DELETE 시도
+                        let deleted = false;
+                        
+                        try {
+                            const { error: deleteError } = await client
+                                .from('comments')
+                                .delete()
+                                .eq('id', commentId);
+                            
+                            if (!deleteError) {
+                                deleted = true;
+                            } else {
+                                throw deleteError;
+                            }
+                        } catch (deleteErr) {
+                            // DELETE 실패 시 소프트 삭제로 폴백
+                            const { error: updateError } = await client
+                                .from('comments')
+                                .update({ 
+                                    is_deleted: true,
+                                    content: '삭제된 댓글입니다.'
+                                })
+                                .eq('id', commentId);
+                            
+                            if (updateError) {
+                                throw updateError;
+                            }
+                        }
+                        
+                        if (deleted) {
+                            showSuccess('댓글이 완전히 삭제되었습니다.');
+                        } else {
+                            showSuccess('댓글이 삭제되었습니다.');
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        smoothReload();
+                    }, 500);
+                } catch (error) {
+                    showError('댓글 삭제에 실패했습니다.');
+                }
+            });
+        }
+
+        // 전역 함수로 노출
+        window.showCommentMenu = showCommentMenu;
+        window.editComment = editComment;
+        window.saveCommentEdit = saveCommentEdit;
+        window.cancelCommentEdit = cancelCommentEdit;
+        window.deleteComment = deleteComment;
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</body>
+
+</html>
+

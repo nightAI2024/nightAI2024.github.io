@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>공지사항</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: 'liga';
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "foreground-light": "#ffffff",
+                        "foreground-dark": "#1a2836",
+                        "text-primary-light": "#111418",
+                        "text-primary-dark": "#f0f2f4",
+                        "text-secondary-light": "#617589",
+                        "text-secondary-dark": "#a0b3c6",
+                        "border-light": "#e3e8ed",
+                        "border-dark": "#2c3e50"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <!-- Top App Bar -->
+        <header class="sticky top-0 z-10 flex h-14 items-center border-b border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark px-4">
+            <button id="backBtn" class="flex size-10 shrink-0 items-center justify-center rounded-full text-text-primary-light dark:text-text-primary-dark cursor-pointer">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </button>
+            <h1 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark flex-1 text-center">공지사항</h1>
+            <button id="writeBtn" class="flex size-10 shrink-0 items-center justify-center rounded-full text-primary cursor-pointer" style="display: none;">
+                <span class="material-symbols-outlined text-2xl">edit</span>
+            </button>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="flex-1 pb-20">
+            <div id="noticeList" class="flex flex-col">
+                <div class="p-5">
+                    <p class="text-center text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-foreground-light dark:bg-foreground-dark border-t border-border-light dark:border-border-dark flex justify-around items-center px-2 z-30">
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="main.html">
+            <span class="material-symbols-outlined !text-3xl">home</span>
+            <span class="text-xs font-medium">홈</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="contact.html">
+            <span class="material-symbols-outlined !text-3xl">group</span>
+            <span class="text-xs font-medium">명부</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="community.html">
+            <span class="material-symbols-outlined !text-3xl">chat</span>
+            <span class="text-xs font-medium">커뮤니티</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400" href="my_profile.html">
+            <span class="material-symbols-outlined !text-3xl">person</span>
+            <span class="text-xs font-medium">마이페이지</span>
+        </a>
+    </nav>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/notice.js"></script>
+    <script src="js/page-transition.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await requireAuth();
+            if (!session) return;
+
+            document.getElementById('backBtn').addEventListener('click', () => window.history.back());
+
+            // 관리자인지 확인하고 글쓰기 버튼 표시
+            const canWrite = await canWriteNotice();
+            const writeBtn = document.getElementById('writeBtn');
+            if (canWrite) {
+                writeBtn.style.display = 'flex';
+                writeBtn.addEventListener('click', () => {
+                    smoothNavigate('notice_write.html');
+                });
+            }
+
+            await loadNotices();
+        });
+
+        async function loadNotices() {
+            try {
+                const client = initSupabase();
+                
+                const { data: notices, error } = await client
+                    .from('notices')
+                    .select('*, profiles:author_id(name, batch)')
+                    .eq('is_deleted', false)
+                    .order('is_important', { ascending: false })
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw error;
+
+                displayNotices(notices);
+            } catch (error) {
+                document.getElementById('noticeList').innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 px-4">
+                        <span class="material-symbols-outlined text-6xl text-red-500 mb-4">error</span>
+                        <p class="text-base font-medium text-red-500">공지사항을 불러오는데 실패했습니다</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayNotices(notices) {
+            const listEl = document.getElementById('noticeList');
+
+            if (!notices || notices.length === 0) {
+                listEl.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 px-4">
+                        <span class="material-symbols-outlined text-6xl text-text-secondary-light dark:text-text-secondary-dark mb-4">campaign</span>
+                        <p class="text-base font-medium text-text-secondary-light dark:text-text-secondary-dark">공지사항이 없습니다</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = notices.map(notice => {
+                const authorName = notice.profiles?.name || '관리자';
+                const authorBatch = notice.profiles?.batch ? `${notice.profiles.batch}기` : '';
+                
+                return `
+                    <a href="notice_detail.html?id=${notice.id}" class="block border-b border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+                        <div class="p-4">
+                            <div class="flex items-start gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        ${notice.is_important ? `
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400">
+                                                중요
+                                            </span>
+                                        ` : ''}
+                                        <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark line-clamp-2 flex-1">
+                                            ${escapeHtml(notice.title)}
+                                        </h3>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        <span>${authorName}${authorBatch ? ` · ${authorBatch}` : ''}</span>
+                                        <span>·</span>
+                                        <span>${formatDate(notice.created_at)}</span>
+                                        <span>·</span>
+                                        <span>조회 ${notice.view_count || 0}</span>
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined text-xl text-text-secondary-light dark:text-text-secondary-dark shrink-0">chevron_right</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+
+</html>

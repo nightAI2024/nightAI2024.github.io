@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CAIO 원우회</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;family=Noto+Sans+KR:wght@400;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1a242f",
+                        "text-light-primary": "#0d141b",
+                        "text-dark-primary": "#f0f2f4",
+                        "text-light-secondary": "#4c739a",
+                        "text-dark-secondary": "#a0a7af",
+                        "border-light": "#cfdbe7",
+                        "border-dark": "#343f4b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <header
+            class="sticky top-0 z-10 flex h-16 items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm px-4 justify-between border-b border-border-light dark:border-border-dark">
+            <a href="my_profile.html" class="flex size-10 shrink-0 items-center justify-center">
+                <div id="headerProfileImage" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 bg-gray-300"
+                    data-alt="User profile picture">
+                </div>
+            </a>
+            <div class="flex-1 flex items-center justify-center">
+                <h1 id="headerGreeting" class="text-base font-semibold text-text-light-primary dark:text-text-dark-primary"></h1>
+            </div>
+            <div class="flex w-10 items-center justify-end">
+                <button id="notificationBtn"
+                    class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 bg-transparent text-text-light-primary dark:text-text-dark-primary gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+                    <span class="material-symbols-outlined text-2xl">notifications</span>
+                    <span id="notificationBadge" class="absolute top-1 right-1 flex h-2.5 w-2.5 hidden">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span
+                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-background-light dark:border-background-dark"></span>
+                    </span>
+                </button>
+            </div>
+        </header>
+        <main class="flex-grow pb-24">
+            <section class="px-4 pt-3 pb-3">
+                <div
+                    class="rounded-2xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-5">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl text-primary">campaign</span>
+                            <h2
+                                class="text-text-light-primary dark:text-text-dark-primary text-lg font-bold leading-tight">
+                                공지사항</h2>
+                        </div>
+                        <a class="text-sm font-semibold text-primary hover:underline" href="notice_list.html">전체 보기</a>
+                    </div>
+                    <div id="noticeList" class="flex flex-col gap-4">
+                        <p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">로딩 중...</p>
+                    </div>
+                </div>
+            </section>
+            <section class="px-4 pt-3 pb-3">
+                <div
+                    class="rounded-2xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-5">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl text-primary">forum</span>
+                            <h2
+                                class="text-text-light-primary dark:text-text-dark-primary text-lg font-bold leading-tight">
+                                커뮤니티</h2>
+                        </div>
+                        <a class="text-sm font-semibold text-primary hover:underline" href="community.html">전체 보기</a>
+                    </div>
+                    <div id="postList" class="flex flex-col gap-4">
+                        <p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">로딩 중...</p>
+                    </div>
+                </div>
+            </section>
+            <section class="px-4 pt-2 pb-8">
+                <div class="grid grid-cols-2 gap-3">
+                    <a class="flex flex-col gap-2 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
+                        href="contact.html">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-2xl text-primary">search</span>
+                            <span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">arrow_forward_ios</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-text-light-primary dark:text-text-dark-primary text-sm font-bold leading-tight">
+                                CAIO 명부 검색</h3>
+                            <p class="text-text-light-secondary dark:text-text-dark-secondary text-xs font-normal leading-normal">
+                                동문과 기수별 인맥 찾기</p>
+                        </div>
+                    </a>
+                    <a class="flex flex-col gap-2 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
+                        href="community.html">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-2xl text-primary">forum</span>
+                            <span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">arrow_forward_ios</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-text-light-primary dark:text-text-dark-primary text-sm font-bold leading-tight">
+                                커뮤니티 살펴보기</h3>
+                            <p class="text-text-light-secondary dark:text-text-dark-secondary text-xs font-normal leading-normal">
+                                최신 소식과 토론 확인</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </main>
+        <nav
+            class="fixed bottom-0 left-0 right-0 h-20 bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark flex justify-around items-center px-2">
+            <a class="flex flex-col items-center justify-center gap-1 w-full text-primary" href="main.html">
+                <span class="material-symbols-outlined !text-3xl" style="font-variation-settings: 'FILL' 1;">home</span>
+                <span class="text-xs font-bold">홈</span>
+            </a>
+            <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
+                href="contact.html">
+                <span class="material-symbols-outlined !text-3xl">group</span>
+                <span class="text-xs font-medium">명부</span>
+            </a>
+            <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
+                href="community.html">
+                <span class="material-symbols-outlined !text-3xl">chat</span>
+                <span class="text-xs font-medium">커뮤니티</span>
+            </a>
+            <a class="flex flex-col items-center justify-center gap-1 w-full text-text-light-secondary dark:text-text-dark-secondary"
+                href="my_profile.html">
+                <span class="material-symbols-outlined !text-3xl">person</span>
+                <span class="text-xs font-medium">마이페이지</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/community.js"></script>
+    <script src="js/notice.js"></script>
+    <script src="js/notification.js"></script>
+    <script src="js/profile-utils.js"></script>
+    <script src="js/page-transition.js"></script>
+    
+    <script>
+        // 메인 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 로그인 확인
+            const session = await requireAuth();
+            if (!session) return;
+
+            // 사용자 프로필 정보 가져오기
+            await loadUserProfile();
+
+            // 공지사항 로드
+            await loadNotices();
+
+            // 커뮤니티 게시글 로드
+            await loadPosts();
+
+            // 알림 체크
+            await checkUnreadNotifications();
+
+            // 알림 버튼 클릭
+            document.getElementById('notificationBtn').addEventListener('click', () => {
+                smoothNavigate('my_notificaition.html', 300);
+            });
+        });
+
+        // 사용자 프로필 정보 로드
+        async function loadUserProfile() {
+            try {
+                const client = initSupabase();
+                const user = await getCurrentUser();
+                
+                if (!user) return;
+
+                const { data: profile, error } = await client
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error) throw error;
+
+                const headerGreetingEl = document.getElementById('headerGreeting');
+
+                const displayName = profile.name || '원우님';
+                const batchLabel = profile.batch ? `${profile.batch}기` : '';
+
+                headerGreetingEl.textContent = batchLabel
+                    ? `${displayName}님, 환영합니다 (${batchLabel})`
+                    : `${displayName}님, 환영합니다`;
+
+                // 프로필 이미지 설정
+                const profileImageEl = document.getElementById('headerProfileImage');
+                setProfileImage(profileImageEl, profile);
+            } catch (error) {
+                // 프로필 로드 실패 무시
+            }
+        }
+
+        // 공지사항 로드
+        async function loadNotices() {
+            try {
+                const client = initSupabase();
+                
+                const { data: notices, error } = await client
+                    .from('notices')
+                    .select(`
+                        id,
+                        title,
+                        content,
+                        created_at,
+                        is_important,
+                        profiles:author_id (name, batch)
+                    `)
+                    .eq('is_deleted', false)
+                    .order('is_important', { ascending: false })
+                    .order('created_at', { ascending: false })
+                    .limit(6);
+
+                if (error) throw error;
+
+                const noticeListEl = document.getElementById('noticeList');
+                
+                if (!notices || notices.length === 0) {
+                    noticeListEl.innerHTML = '<p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">공지사항이 없습니다.</p>';
+                    return;
+                }
+
+                const [highlight, ...rest] = notices;
+
+                const highlightHtml = highlight ? `
+                    <a class="block rounded-2xl border border-primary/20 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 p-4 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+                        href="notice_detail.html?id=${highlight.id}">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-semibold text-primary uppercase tracking-wide">최신 공지</span>
+                            ${highlight.is_important ? '<span class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300">중요</span>' : ''}
+                        </div>
+                        <h3 class="text-base font-bold text-text-light-primary dark:text-text-dark-primary leading-snug">
+                            ${escapeHtml(highlight.title)}
+                        </h3>
+                        <p class="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-2 leading-relaxed">
+                            ${escapeHtml(getSnippet(highlight.content, 110))}
+                        </p>
+                        <div class="flex items-center gap-2 text-xs text-text-light-secondary dark:text-text-dark-secondary mt-3">
+                            <span>${escapeHtml(highlight.profiles?.name || '관리자')}</span>
+                            <span>·</span>
+                            <span>${highlight.profiles?.batch ? `${highlight.profiles.batch}기` : '운영팀'}</span>
+                            <span>·</span>
+                            <span>${formatDate(highlight.created_at)}</span>
+                        </div>
+                    </a>
+                ` : '';
+
+                const restHtml = rest.length > 0
+                    ? '<div class="flex flex-col gap-3">' + rest.slice(0, 4).map(notice => `
+                        <a class="block rounded-xl border border-border-light dark:border-border-dark bg-foreground-light dark:bg-card-dark/60 p-3 hover:bg-primary/5 dark:hover:bg-primary/15 transition-colors"
+                            href="notice_detail.html?id=${notice.id}">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-sm font-semibold text-text-light-primary dark:text-text-dark-primary truncate">
+                                    ${escapeHtml(notice.title)}
+                                </p>
+                                ${notice.is_important ? '<span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300 flex-shrink-0">중요</span>' : ''}
+                            </div>
+                            <p class="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-1 line-clamp-2">
+                                ${escapeHtml(getSnippet(notice.content, 80))}
+                            </p>
+                            <p class="text-[11px] text-text-light-secondary dark:text-text-dark-secondary mt-2">
+                                ${notice.profiles?.name || '관리자'}${notice.profiles?.batch ? ` (${notice.profiles.batch}기)` : ''} · ${formatDate(notice.created_at)}
+                            </p>
+                        </a>
+                    `).join('') + '</div>'
+                    : '';
+
+                noticeListEl.innerHTML = `
+                    <div class="flex flex-col gap-4">
+                        ${highlightHtml}
+                        ${restHtml}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('noticeList').innerHTML = 
+                    '<p class="text-center text-red-500 py-4">공지사항을 불러오는데 실패했습니다.</p>';
+            }
+        }
+
+        // 커뮤니티 게시글 로드
+        async function loadPosts() {
+            try {
+                const client = initSupabase();
+                const user = await getCurrentUser();
+                
+                // 1. 오늘의 추천글 가져오기 (3일 이내, 좋아요 1개 이상)
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+                
+                const { data: recentPostsWithLikes, error: recentError } = await client
+                    .from('posts')
+                    .select(`
+                        id,
+                        content,
+                        created_at,
+                        author_id,
+                        profiles:author_id (name, batch),
+                        post_likes (user_id)
+                    `)
+                    .eq('is_deleted', false)
+                    .gte('created_at', threeDaysAgo.toISOString())
+                    .order('created_at', { ascending: false });
+
+                if (recentError) throw recentError;
+
+                // 추천글 선정: 좋아요가 1개 이상인 게시글 중 좋아요 순으로 정렬
+                let recommendedPosts = [];
+                if (recentPostsWithLikes && recentPostsWithLikes.length > 0) {
+                    const postsWithLikeCount = recentPostsWithLikes.map(post => {
+                        const likeCount = post.post_likes ? post.post_likes.length : 0;
+                        return {
+                            ...post,
+                            likeCount: likeCount
+                        };
+                    }).filter(post => post.likeCount > 0);
+
+                    // 좋아요 순으로 정렬하고 최대 1개만 선택
+                    postsWithLikeCount.sort((a, b) => b.likeCount - a.likeCount);
+                    recommendedPosts = postsWithLikeCount.slice(0, 1);
+                }
+
+                // 2. 최신글 5개 가져오기 (추천글 제외)
+                const recommendedIds = new Set(recommendedPosts.map(p => p.id));
+                
+                const { data: latestPosts, error: latestError } = await client
+                    .from('posts')
+                    .select(`
+                        id,
+                        content,
+                        created_at,
+                        author_id,
+                        profiles:author_id (name, batch)
+                    `)
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: false })
+                    .limit(12); // 추천글 제외를 위해 여유있게 가져오기
+                
+                if (latestError) throw latestError;
+
+                // 추천글 제외하고 최신 5개만 선택
+                const regularPosts = (latestPosts || [])
+                    .filter(post => !recommendedIds.has(post.id))
+                    .slice(0, 6);
+
+                // 렌더링
+                renderPosts(recommendedPosts, regularPosts);
+            } catch (error) {
+                document.getElementById('postList').innerHTML = 
+                    '<p class="text-center text-red-500 py-4">게시글을 불러오는데 실패했습니다.</p>';
+            }
+        }
+
+        // 게시글 렌더링 함수 (추천글 1개 + 최신글 5개)
+        function renderPosts(recommendedPosts, regularPosts) {
+            const postListEl = document.getElementById('postList');
+            const recommendedQueue = [...recommendedPosts];
+            const regularQueue = [...regularPosts];
+
+            let highlightLabel = '최신 글';
+            let highlightPost = null;
+
+            if (recommendedQueue.length > 0) {
+                highlightPost = recommendedQueue.shift();
+                highlightLabel = '오늘의 추천글';
+            } else if (regularQueue.length > 0) {
+                highlightPost = regularQueue.shift();
+            }
+
+            const remainingPosts = [...recommendedQueue, ...regularQueue];
+
+            if (!highlightPost && remainingPosts.length === 0) {
+                postListEl.innerHTML = '<p class="text-center text-text-light-secondary dark:text-text-dark-secondary py-4">게시글이 없습니다.</p>';
+                return;
+            }
+
+            const highlightHtml = highlightPost ? `
+                <a class="block rounded-2xl border border-primary/20 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 p-4 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+                    href="community_detail.html?id=${highlightPost.id}">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-primary">${highlightLabel}</span>
+                        ${typeof highlightPost.likeCount === 'number' && highlightPost.likeCount > 0 ? `<span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">추천 ${highlightPost.likeCount}</span>` : ''}
+                    </div>
+                    <p class="text-base font-semibold text-text-light-primary dark:text-text-dark-primary leading-relaxed">
+                        ${escapeHtml(getSnippet(highlightPost.content, 120))}
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-text-light-secondary dark:text-text-dark-secondary mt-3">
+                        <span>${escapeHtml(highlightPost.profiles?.name || '익명')}</span>
+                        <span>·</span>
+                        <span>${highlightPost.profiles?.batch ? `${highlightPost.profiles.batch}기` : 'CAIO'}</span>
+                        <span>·</span>
+                        <span>${formatDate(highlightPost.created_at)}</span>
+                    </div>
+                </a>
+            ` : '';
+
+            const listHtml = remainingPosts.length > 0
+                ? '<div class="flex flex-col gap-3">' + remainingPosts.slice(0, 6).map(post => `
+                    <a class="block rounded-xl border border-border-light dark:border-border-dark bg-foreground-light dark:bg-card-dark/60 p-3 hover:bg-primary/5 dark:hover:bg-primary/15 transition-colors"
+                        href="community_detail.html?id=${post.id}">
+                        <p class="text-sm font-semibold text-text-light-primary dark:text-text-dark-primary mb-1">
+                            ${escapeHtml(post.profiles?.name || '익명')}${post.profiles?.batch ? ` · ${post.profiles.batch}기` : ''}
+                        </p>
+                        <p class="text-sm text-text-light-secondary dark:text-text-dark-secondary leading-relaxed">
+                            ${escapeHtml(getSnippet(post.content, 90))}
+                        </p>
+                        <p class="text-[11px] text-text-light-secondary dark:text-text-dark-secondary mt-2">${formatDate(post.created_at)}</p>
+                    </a>
+                `).join('') + '</div>'
+                : '';
+
+            postListEl.innerHTML = `
+                <div class="flex flex-col gap-4">
+                    ${highlightHtml}
+                    ${listHtml}
+                </div>
+            `;
+        }
+
+        // 읽지 않은 알림 확인
+        async function checkUnreadNotifications() {
+            try {
+                const client = initSupabase();
+                const user = await getCurrentUser();
+                
+                if (!user) return;
+
+                const { data, error } = await client
+                    .from('notifications')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('is_read', false)
+                    .limit(1);
+
+                if (error) throw error;
+
+                // 읽지 않은 알림이 있으면 배지 표시
+                if (data && data.length > 0) {
+                    document.getElementById('notificationBadge').classList.remove('hidden');
+                }
+            } catch (error) {
+                // 알림 확인 실패 무시
+            }
+        }
+
+        function getSnippet(text = '', length = 90) {
+            const sanitized = (text || '').replace(/\s+/g, ' ').trim();
+            if (sanitized.length <= length) return sanitized;
+            return `${sanitized.slice(0, length).trim()}…`;
+        }
+    </script>
+</body>
+
+</html>

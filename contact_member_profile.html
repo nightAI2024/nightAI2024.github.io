@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>회원 프로필</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="css/fonts.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#137fec",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1323"
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden text-[#101922] dark:text-gray-200">
+        <!-- Top App Bar -->
+        <div class="sticky top-0 z-10 flex items-center justify-between bg-background-light dark:bg-background-dark p-4 pb-2">
+            <div class="flex size-12 shrink-0 items-center justify-start cursor-pointer" id="backBtn">
+                <span class="material-symbols-outlined text-2xl text-[#101922] dark:text-gray-200">arrow_back</span>
+            </div>
+            <div class="flex w-12 items-center justify-end"></div>
+        </div>
+        
+        <!-- Profile Header -->
+        <div class="flex p-4 @container">
+            <div class="flex w-full flex-col items-center gap-4">
+                <div class="flex flex-col items-center gap-4">
+                    <div id="profileImage" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32"
+                        style='background-image: url("https://via.placeholder.com/150");'>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <p id="userName" class="text-[#101922] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
+                            로딩 중...</p>
+                        <p id="userInfo" class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal text-center">
+                            로딩 중...</p>
+                    </div>
+                </div>
+                <div class="flex w-full max-w-[480px] gap-3">
+                    <button id="callBtn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 text-primary text-sm font-bold leading-normal tracking-[0.015em] flex-1">
+                        <span class="truncate">전화걸기</span>
+                    </button>
+                    <button id="emailBtn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] flex-1">
+                        <span class="truncate">이메일 보내기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="h-4"></div>
+        
+        <!-- About Me Section -->
+        <div id="aboutSection">
+            <h3 class="text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 text-[#101922] dark:text-white">소개</h3>
+            <p id="introduction" class="text-base font-normal leading-normal pb-3 pt-1 px-4 text-gray-700 dark:text-gray-300">
+                로딩 중...
+            </p>
+        </div>
+        
+        <!-- Information Cards Section -->
+        <div class="flex flex-col gap-4 px-4 py-4">
+            <!-- Contact Info Card -->
+            <div id="contactCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-background-dark/50 p-4">
+                <h4 class="text-base font-bold leading-tight text-[#101922] dark:text-white">연락처 정보</h4>
+                <div id="contactInfo"></div>
+            </div>
+            
+            <!-- Professional Experience Card -->
+            <div id="careerCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-background-dark/50 p-4">
+                <h4 class="text-base font-bold leading-tight text-[#101922] dark:text-white">경력 정보</h4>
+                <div id="careerInfo"></div>
+            </div>
+            
+            <!-- Education Card -->
+            <div id="educationCard" class="flex w-full flex-col gap-3 rounded-xl bg-white dark:bg-background-dark/50 p-4">
+                <h4 class="text-base font-bold leading-tight text-[#101922] dark:text-white">학력 정보</h4>
+                <div id="educationInfo"></div>
+            </div>
+        </div>
+        <div class="h-5"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/profile-utils.js"></script>
+    <script src="js/page-transition.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await requireAuth();
+            if (!session) return;
+
+            const memberId = new URLSearchParams(window.location.search).get('id');
+            if (!memberId) {
+                showError('회원 ID가 없습니다.');
+                window.history.back();
+                return;
+            }
+
+            const client = initSupabase();
+
+            // 뒤로가기
+            document.getElementById('backBtn').addEventListener('click', () => window.history.back());
+
+            try {
+                // 현재 사용자 정보 가져오기 (기수 비교용)
+                const currentUser = await getCurrentUser();
+                const { data: currentUserProfile } = await client
+                    .from('profiles')
+                    .select('batch, name')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                // 프로필 로드
+                const { data: profile, error: profileError } = await client
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', memberId)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                // 프로필 조회 Slack 알림 전송 (본인 프로필 제외, 비동기, 실패해도 무시)
+                if (currentUser.id !== memberId) {
+                    try {
+                        const currentUserName = currentUserProfile?.name || '익명';
+                        const currentUserBatch = currentUserProfile?.batch;
+                        const profileOwnerName = profile.name || '익명';
+                        const profileOwnerBatch = profile.batch;
+                        
+                        // Edge Function 호출 (비동기, 실패해도 무시)
+                        fetch(`${SUPABASE_CONFIG.url}/functions/v1/slack-notification`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                            },
+                            body: JSON.stringify({
+                                action: 'profile_view',
+                                record: {
+                                    viewer_name: currentUserName,
+                                    viewer_batch: currentUserBatch,
+                                    profile_name: profileOwnerName,
+                                    profile_batch: profileOwnerBatch
+                                }
+                            })
+                        }).catch(() => {
+                            // 알림 전송 실패 무시
+                        });
+                    } catch (error) {
+                        // 알림 처리 오류 무시
+                    }
+                }
+
+                // 개인정보 공개 설정 별도로 로드 (더 안정적)
+                let { data: privacySettingsData, error: settingsError } = await client
+                    .from('privacy_settings')
+                    .select('*')
+                    .eq('profile_id', memberId)
+                    .single();
+
+                // privacy_settings가 없으면 null로 처리 (나중에 기본값 적용)
+                if (settingsError && settingsError.code === 'PGRST116') {
+                    privacySettingsData = null;
+                } else if (settingsError) {
+                    throw settingsError;
+                }
+
+                // 기수 비교: 같은 기수인지 확인
+                const isSameBatch = currentUserProfile && profile.batch && 
+                    currentUserProfile.batch === profile.batch;
+
+                // privacy_settings 처리: 실제 데이터베이스 값 그대로 사용
+                // privacySettingsData가 있으면 그 값을 사용, 없으면 null
+                const privacySettings = privacySettingsData ? {
+                    show_phone: privacySettingsData.show_phone !== false,  // false가 아니면 공개 (true, null 모두 공개)
+                    show_email: privacySettingsData.show_email !== false,  // false가 아니면 공개 (true, null 모두 공개)
+                    show_career: privacySettingsData.show_career !== false,
+                    show_education: privacySettingsData.show_education !== false
+                } : null;
+
+                // 연락처 정보: 같은 기수면 항상 공개, 다른 기수면 privacySettings 값 확인
+                // privacySettings가 null이면 비공개, 있으면 show_phone/show_email 값 직접 사용
+                const canShowPhone = isSameBatch || (privacySettings?.show_phone === true);
+                const canShowEmail = isSameBatch || (privacySettings?.show_email === true);
+
+                // 경력 정보
+                const { data: careers, error: careersError } = await client
+                    .from('careers')
+                    .select('*')
+                    .eq('profile_id', memberId)
+                    .order('order', { ascending: true });
+
+                if (careersError) throw careersError;
+
+                // 학력 정보
+                const { data: educations, error: educationsError } = await client
+                    .from('educations')
+                    .select('*')
+                    .eq('profile_id', memberId)
+                    .order('order', { ascending: true });
+
+                if (educationsError) throw educationsError;
+
+                // 프로필 이미지 설정 (색상 배경 또는 사진)
+                const profileImageEl = document.getElementById('profileImage');
+                setProfileImage(profileImageEl, profile);
+
+                // 이름
+                document.getElementById('userName').textContent = profile.name || '이름 없음';
+
+                // 기수
+                const batch = profile.batch || '?';
+                document.getElementById('userInfo').textContent = `${batch}기`;
+
+                // 소개
+                if (profile.introduction) {
+                    document.getElementById('introduction').textContent = profile.introduction;
+                } else {
+                    document.getElementById('aboutSection').style.display = 'none';
+                }
+
+                // 연락처 정보
+                const contactInfoEl = document.getElementById('contactInfo');
+                let contactHtml = '';
+
+                // 휴대폰 (기수 체크 반영)
+                if (canShowPhone) {
+                    if (profile.phone) {
+                        contactHtml += `
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-xl text-primary">phone_iphone</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
+                                    <p class="text-sm font-medium">${escapeHtml(profile.phone)}</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contactHtml += `
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-xl text-gray-400">phone_iphone</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
+                                    <p class="text-sm font-medium text-gray-400">미등록</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    contactHtml += `
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-xl text-gray-400">phone_iphone</span>
+                            <div class="flex flex-col">
+                                <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
+                                <p class="text-sm font-medium text-gray-400">다른 기수에겐 비공개 처리되어있어요</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 이메일 (기수 체크 반영)
+                if (canShowEmail) {
+                    if (profile.email) {
+                        contactHtml += `
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-xl text-primary">alternate_email</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">이메일</p>
+                                    <p class="text-sm font-medium">${escapeHtml(profile.email)}</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contactHtml += `
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-xl text-gray-400">alternate_email</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">이메일</p>
+                                    <p class="text-sm font-medium text-gray-400">미등록</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    contactHtml += `
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-xl text-gray-400">alternate_email</span>
+                            <div class="flex flex-col">
+                                <p class="text-sm font-normal text-gray-500 dark:text-gray-400">이메일</p>
+                                <p class="text-sm font-medium text-gray-400">다른 기수에겐 비공개 처리되어있어요</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                contactInfoEl.innerHTML = contactHtml;
+
+                // 전화/이메일 버튼 - 실제 연락처와 이메일 매핑
+                const callBtn = document.getElementById('callBtn');
+                const emailBtn = document.getElementById('emailBtn');
+
+                if (canShowPhone && profile.phone) {
+                    // 전화번호에서 하이픈 제거하여 전화걸기
+                    const cleanPhone = profile.phone.replace(/[^0-9]/g, '');
+                    callBtn.addEventListener('click', () => {
+                        window.location.href = `tel:${cleanPhone}`;
+                    });
+                    callBtn.innerHTML = '<span class="truncate">전화걸기</span>';
+                } else {
+                    // 버튼 비활성화 및 스타일 변경
+                    callBtn.disabled = true;
+                    callBtn.className = 'flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-bold leading-normal tracking-[0.015em] flex-1 cursor-not-allowed';
+                    callBtn.innerHTML = '<span class="truncate">다른 기수에겐 비공개</span>';
+                }
+
+                if (canShowEmail && profile.email) {
+                    // 이메일 보내기
+                    emailBtn.addEventListener('click', () => {
+                        window.location.href = `mailto:${profile.email}`;
+                    });
+                    emailBtn.innerHTML = '<span class="truncate">이메일 보내기</span>';
+                } else {
+                    // 버튼 비활성화 및 스타일 변경
+                    emailBtn.disabled = true;
+                    emailBtn.className = 'flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-bold leading-normal tracking-[0.015em] flex-1 cursor-not-allowed';
+                    emailBtn.innerHTML = '<span class="truncate">다른 기수에겐 비공개</span>';
+                }
+
+                // 경력 정보
+                const careerInfoEl = document.getElementById('careerInfo');
+                if (privacySettings?.show_career !== false) {
+                    if (careers && careers.length > 0) {
+                        careerInfoEl.innerHTML = careers.map(career => `
+                            <div class="flex items-start gap-4">
+                                <span class="material-symbols-outlined text-xl text-primary mt-1">business_center</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-medium">${escapeHtml(career.company || '')}</p>
+                                    <p class="text-sm font-normal text-gray-700 dark:text-gray-300">${escapeHtml(career.position || '')}</p>
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">${career.start_year || ''} - ${career.end_year || '현재'}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        careerInfoEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">등록된 경력이 없습니다.</p>';
+                    }
+                } else {
+                    careerInfoEl.innerHTML = '<p class="text-sm text-gray-400">다른 기수에겐 비공개 처리되어있어요</p>';
+                }
+
+                // 학력 정보
+                const educationInfoEl = document.getElementById('educationInfo');
+                if (privacySettings?.show_education !== false) {
+                    if (educations && educations.length > 0) {
+                        educationInfoEl.innerHTML = educations.map(education => `
+                            <div class="flex items-start gap-4">
+                                <span class="material-symbols-outlined text-xl text-primary mt-1">school</span>
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-medium">${escapeHtml(education.school || '')}</p>
+                                    <p class="text-sm font-normal text-gray-700 dark:text-gray-300">${escapeHtml(education.major || education.degree || '')}</p>
+                                    <p class="text-sm font-normal text-gray-500 dark:text-gray-400">${education.start_year || ''} - ${education.end_year || '현재'}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        educationInfoEl.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">등록된 학력이 없습니다.</p>';
+                    }
+                } else {
+                    educationInfoEl.innerHTML = '<p class="text-sm text-gray-400">다른 기수에겐 비공개 처리되어있어요</p>';
+                }
+
+            } catch (error) {
+                showError('프로필을 불러오는데 실패했습니다.');
+                document.querySelector('.relative').innerHTML = 
+                    '<p class="text-center text-red-500 py-8">프로필을 불러올 수 없습니다.</p>';
+            }
+        });
+    </script>
+</body>
+
+</html>

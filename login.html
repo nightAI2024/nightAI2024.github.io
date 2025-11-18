@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CAIO 원우회 - 로그인</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { display: "Inter" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" } } } };</script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #137fec, #1e40af, #3b82f6, #60a5fa);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .splash-logo {
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .splash-text {
+            animation: fadeIn 1.2s ease-out 0.3s both;
+        }
+        
+        .splash-loader {
+            animation: fadeIn 1.4s ease-out 0.6s both;
+        }
+        
+        .loader-dot {
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .loader-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loader-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes shimmer {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        .splash-loader div:last-child {
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #137fec, #1e40af, #3b82f6, #60a5fa);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark .glass-effect {
+            background: rgba(17, 24, 39, 0.98);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-focus-effect:focus {
+            box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .premium-button {
+            background: #137fec;
+            box-shadow: 0 4px 6px -1px rgba(19, 127, 236, 0.2), 0 2px 4px -1px rgba(19, 127, 236, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .premium-button:hover {
+            background: #0d6bd8;
+            box-shadow: 0 6px 8px -1px rgba(19, 127, 236, 0.3), 0 4px 6px -1px rgba(19, 127, 236, 0.2);
+        }
+        
+        .premium-button:active {
+            background: #0b5fc7;
+            box-shadow: 0 2px 4px -1px rgba(19, 127, 236, 0.2);
+        }
+        
+        
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="font-display">
+    <!-- Splash Loading Screen -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="text-center">
+            <!-- Logo -->
+            <div class="splash-logo mb-8">
+                <div class="text-white text-8xl md:text-9xl font-black tracking-tighter drop-shadow-2xl">
+                    CAIO
+                </div>
+            </div>
+            
+            <!-- Subtitle -->
+            <div class="splash-text mb-12">
+                <p class="text-white/90 text-xl md:text-2xl font-semibold tracking-wide mb-2">
+                    Chief AI Officer
+                </p>
+                <p class="text-white/70 text-sm md:text-base font-normal">
+                    AI 리더들의 네트워크 플랫폼
+                </p>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div class="splash-loader">
+                <div class="flex items-center justify-center gap-3 mb-2">
+                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
+                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
+                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
+                </div>
+                <div class="text-white/60 text-xs font-medium tracking-wider mt-4">
+                    LOADING...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- 고급스러운 그라데이션 배경 -->
+        <div class="fixed inset-0 gradient-bg opacity-90 dark:opacity-95"></div>
+        
+        <!-- 미묘한 그리드 패턴 -->
+        <div class="fixed inset-0 opacity-10 dark:opacity-5" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 40px 40px;"></div>
+        
+        <!-- 빛나는 원형 효과 -->
+        <div class="fixed top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+        <div class="fixed bottom-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+        
+        <main class="relative flex w-full grow flex-col px-4 py-8 z-10">
+            <div class="flex-grow flex flex-col justify-center">
+                <!-- Logo & Headline -->
+                <div class="text-center mb-12">
+                    <h1 class="text-white tracking-tight text-7xl md:text-8xl font-black leading-none pb-4 drop-shadow-2xl mb-6">
+                        CAIO</h1>
+                    <p class="text-white/90 dark:text-white/90 text-xl md:text-2xl font-semibold leading-normal pb-2 tracking-wide">
+                        Chief AI Officer</p>
+                    <p class="text-white/80 dark:text-white/80 text-sm md:text-base font-normal">
+                        AI 리더들의 네트워크 플랫폼</p>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="w-full max-w-md mx-auto">
+                    <div class="glass-effect rounded-2xl p-8 space-y-6">
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                <span class="material-symbols-outlined text-lg text-primary">alternate_email</span>
+                                <span>이메일</span>
+                            </label>                            <input id="email"
+                                class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white transition-all duration-300"
+                                placeholder="이메일을 입력하세요" type="email" value="" />
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                <span class="material-symbols-outlined text-lg text-primary">lock</span>
+                                <span>비밀번호</span>
+                            </label>
+                            <div class="flex w-full items-stretch">
+                                <input id="password"
+                                    class="input-focus-effect flex w-full rounded-l-xl border-2 border-r-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 pr-2 text-base font-medium text-gray-900 dark:text-white transition-all duration-300"
+                                    placeholder="비밀번호를 입력하세요" type="password" value="" />
+                                <button id="togglePassword" class="flex items-center justify-center px-4 rounded-r-xl border-2 border-l-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined" id="passwordIcon">visibility</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Forgot Password Link -->
+                        <div class="text-right pt-2">
+                            <button id="forgotPasswordBtn" class="text-sm font-medium text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors bg-transparent border-none cursor-pointer">
+                                비밀번호를 잊으셨나요?
+                            </button>
+                        </div>
+                        
+                        <!-- Login Button -->
+                        <button id="loginBtn"
+                            class="premium-button flex w-full items-center justify-center rounded-xl h-14 px-6 text-base font-semibold text-white mt-4">
+                            로그인
+                        </button>
+                        
+                        <!-- Sign Up Prompt -->
+                        <div class="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                아직 계정이 없으신가요? 
+                                <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors" href="signup.html">
+                                    회원가입
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 비밀번호 재설정 모달 -->
+    <div id="resetPasswordModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-effect rounded-2xl p-8 max-w-md w-full transform transition-all">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-black text-gray-900 dark:text-white">비밀번호 재설정</h2>
+                <button id="closeResetModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                등록하신 이메일 주소를 입력하시면<br/>비밀번호 재설정 링크를 보내드립니다.
+            </p>
+            <div class="space-y-5">
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <span class="material-symbols-outlined text-lg text-primary">mail</span>
+                        <span>이메일</span>
+                    </label>
+                    <input id="resetEmailInput" 
+                        class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white transition-all duration-300" 
+                        placeholder="이메일을 입력하세요" 
+                        type="email" />
+                </div>
+                <button id="sendResetEmailBtn" 
+                    class="premium-button w-full rounded-xl h-14 px-6 text-base font-semibold text-white">
+                    재설정 링크 보내기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/page-transition.js"></script>
+    
+    <script>
+        // 스플래시 화면 처리
+        (function() {
+            const splashScreen = document.getElementById('splashScreen');
+            
+            // 페이지 로드 완료 대기
+            if (document.readyState === 'complete') {
+                hideSplash();
+            } else {
+                window.addEventListener('load', hideSplash);
+            }
+            
+            function hideSplash() {
+                // 최소 1.8초 표시 후 페이드아웃 (더 고급스러운 느낌)
+                setTimeout(() => {
+                    splashScreen.classList.add('hidden');
+                    // 스플래시 화면 제거 (애니메이션 완료 후)
+                    setTimeout(() => {
+                        splashScreen.remove();
+                    }, 800);
+                }, 1800);
+            }
+        })();
+        
+        // 로그인 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 이미 로그인된 경우 메인으로 리디렉션
+            await requireGuest();
+
+            const loginBtn = document.getElementById('loginBtn');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const passwordIcon = document.getElementById('passwordIcon');
+
+            // 비밀번호 표시/숨기기 토글
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                passwordIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            });
+
+            // Enter 키로 로그인
+            emailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    passwordInput.focus();
+                }
+            });
+            
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+
+            loginBtn.addEventListener('click', async () => {
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!email || !password) {
+                    showError('이메일과 비밀번호를 입력하세요.');
+                    return;
+                }
+
+                setLoading('loginBtn', true);
+                loginBtn.textContent = '로그인 중...';
+
+                try {
+                    await signIn(email, password);
+                    showSuccess('로그인 성공!');
+                    setTimeout(() => {
+                        smoothNavigate('main.html');
+                    }, 800);
+                } catch (error) {
+                    showError(error.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인하세요.');
+                } finally {
+                    setLoading('loginBtn', false);
+                    loginBtn.textContent = '로그인';
+                }
+            });
+
+            // 비밀번호 재설정 모달
+            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+            const resetPasswordModal = document.getElementById('resetPasswordModal');
+            const closeResetModal = document.getElementById('closeResetModal');
+            const resetEmailInput = document.getElementById('resetEmailInput');
+            const sendResetEmailBtn = document.getElementById('sendResetEmailBtn');
+
+            // 모달 열기
+            forgotPasswordBtn.addEventListener('click', () => {
+                resetPasswordModal.classList.remove('hidden');
+                resetPasswordModal.classList.add('flex');
+                resetEmailInput.value = emailInput.value.trim(); // 현재 입력된 이메일 자동 입력
+                resetEmailInput.focus();
+            });
+
+            // 모달 닫기
+            closeResetModal.addEventListener('click', () => {
+                resetPasswordModal.classList.add('hidden');
+                resetPasswordModal.classList.remove('flex');
+                resetEmailInput.value = '';
+            });
+
+            // 모달 배경 클릭 시 닫기
+            resetPasswordModal.addEventListener('click', (e) => {
+                if (e.target === resetPasswordModal) {
+                    resetPasswordModal.classList.add('hidden');
+                    resetPasswordModal.classList.remove('flex');
+                    resetEmailInput.value = '';
+                }
+            });
+
+            // Enter 키로 전송
+            resetEmailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendResetEmailBtn.click();
+                }
+            });
+
+            // 비밀번호 재설정 이메일 전송
+            sendResetEmailBtn.addEventListener('click', async () => {
+                const email = resetEmailInput.value.trim();
+
+                if (!email) {
+                    showError('이메일을 입력하세요.');
+                    return;
+                }
+
+                // 이메일 형식 검증
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError('올바른 이메일 형식을 입력하세요.');
+                    return;
+                }
+
+                setLoading('sendResetEmailBtn', true);
+                sendResetEmailBtn.textContent = '전송 중...';
+
+                try {
+                    await sendPasswordResetEmail(email);
+                    showSuccess('비밀번호 재설정 링크가 이메일로 전송되었습니다. 이메일을 확인해주세요.');
+                    resetPasswordModal.classList.add('hidden');
+                    resetPasswordModal.classList.remove('flex');
+                    resetEmailInput.value = '';
+                } catch (error) {
+                    showError(error.message || '이메일 전송에 실패했습니다. 이메일 주소를 확인해주세요.');
+                } finally {
+                    setLoading('sendResetEmailBtn', false);
+                    sendResetEmailBtn.textContent = '재설정 링크 보내기';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

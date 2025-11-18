@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>공지사항 작성</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "foreground-light": "#ffffff",
+                        "foreground-dark": "#1a2836",
+                        "text-primary-light": "#111418",
+                        "text-primary-dark": "#f0f2f4",
+                        "text-secondary-light": "#617589",
+                        "text-secondary-dark": "#a0b3c6",
+                        "border-light": "#e3e8ed",
+                        "border-dark": "#2c3e50"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <!-- Top App Bar -->
+        <header
+            class="sticky top-0 z-10 flex h-14 items-center border-b border-slate-200/80 bg-background-light/80 dark:border-slate-800/80 dark:bg-background-dark/80 backdrop-blur-sm px-4">
+            <button id="backBtn"
+                class="flex size-10 shrink-0 items-center justify-center rounded-full text-slate-700 dark:text-slate-300 cursor-pointer">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </button>
+            <h1 id="pageTitle" class="text-lg font-bold text-slate-900 dark:text-slate-100 flex-1 text-center">공지사항 작성</h1>
+            <button id="saveBtn"
+                class="flex size-10 shrink-0 items-center justify-center rounded-full text-primary cursor-pointer">
+                <span class="text-base font-semibold">완료</span>
+            </button>
+        </header>
+
+        <main class="flex-1 pb-20">
+            <div class="p-4 space-y-4">
+                <!-- 제목 입력 -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                        제목
+                    </label>
+                    <input type="text" id="titleInput" placeholder="공지사항 제목을 입력하세요"
+                        class="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light dark:placeholder:text-secondary-dark focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <!-- 중요 공지 체크박스 -->
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="importantCheckbox"
+                        class="w-5 h-5 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary">
+                    <label for="importantCheckbox"
+                        class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark cursor-pointer">
+                        중요 공지로 설정
+                    </label>
+                </div>
+
+                <!-- 내용 입력 -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                        내용
+                    </label>
+                    <textarea id="contentInput" rows="15" placeholder="공지사항 내용을 입력하세요"
+                        class="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light dark:placeholder:text-secondary-dark focus:outline-none focus:ring-2 focus:ring-primary resize-none"></textarea>
+                </div>
+
+                <!-- 링크 첨부 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+                            관련 링크
+                        </label>
+                        <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark"><span id="linkCount">0</span>/5</span>
+                    </div>
+                    <div id="linkList" class="space-y-2"></div>
+                    <button id="addLinkBtn"
+                        class="w-full h-11 rounded-lg border-2 border-dashed border-border-light dark:border-border-dark flex items-center justify-center gap-2 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark hover:border-primary hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                        <span>링크 추가</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <nav
+        class="fixed bottom-0 left-0 right-0 h-20 bg-foreground-light dark:bg-foreground-dark border-t border-border-light dark:border-border-dark flex justify-around items-center px-2 z-30">
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400"
+            href="main.html">
+            <span class="material-symbols-outlined !text-3xl">home</span>
+            <span class="text-xs font-medium">홈</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400"
+            href="contact.html">
+            <span class="material-symbols-outlined !text-3xl">group</span>
+            <span class="text-xs font-medium">명부</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400"
+            href="community.html">
+            <span class="material-symbols-outlined !text-3xl">chat</span>
+            <span class="text-xs font-medium">커뮤니티</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-1 w-full text-gray-500 dark:text-gray-400"
+            href="my_profile.html">
+            <span class="material-symbols-outlined !text-3xl">person</span>
+            <span class="text-xs font-medium">마이페이지</span>
+        </a>
+    </nav>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/notice.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/page-transition.js"></script>
+
+    <script>
+        let editMode = false;
+        let editNoticeId = null;
+        let links = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await requireAuth();
+            if (!session) return;
+
+            // 관리자 권한 확인
+            const canWrite = await canWriteNotice();
+            if (!canWrite) {
+                showError('관리자만 공지사항을 작성할 수 있습니다.');
+                setTimeout(() => {
+                    smoothNavigate('notice_list.html');
+                }, 1500);
+                return;
+            }
+
+            const client = initSupabase();
+            if (!client) {
+                showError('Supabase 클라이언트를 초기화할 수 없습니다.');
+                return;
+            }
+            const titleInput = document.getElementById('titleInput');
+            const contentInput = document.getElementById('contentInput');
+            const importantCheckbox = document.getElementById('importantCheckbox');
+            const saveBtn = document.getElementById('saveBtn');
+            const backBtn = document.getElementById('backBtn');
+            const pageTitle = document.getElementById('pageTitle');
+            const addLinkBtn = document.getElementById('addLinkBtn');
+
+            // URL에서 edit 파라미터 확인
+            const params = new URLSearchParams(window.location.search);
+            editNoticeId = params.get('edit');
+            
+            if (editNoticeId) {
+                editMode = true;
+                pageTitle.textContent = '공지사항 수정';
+                saveBtn.innerHTML = '<span class="text-base font-semibold">수정</span>';
+                await loadNoticeForEdit(editNoticeId);
+            }
+
+            // 뒤로가기
+            backBtn.addEventListener('click', () => {
+                if (titleInput.value.trim() || contentInput.value.trim()) {
+                    if (confirm('작성 중인 내용이 있습니다. 정말 나가시겠습니까?')) {
+                        window.history.back();
+                    }
+                } else {
+                    window.history.back();
+                }
+            });
+
+            addLinkBtn.addEventListener('click', addLinkInput);
+            renderLinks();
+
+            // 저장 버튼
+            saveBtn.addEventListener('click', async () => {
+                const title = titleInput.value.trim();
+                const content = contentInput.value.trim();
+                const isImportant = importantCheckbox.checked;
+
+                if (!title) {
+                    showError('제목을 입력해주세요.');
+                    titleInput.focus();
+                    return;
+                }
+
+                if (!content) {
+                    showError('내용을 입력해주세요.');
+                    contentInput.focus();
+                    return;
+                }
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = `<span class="text-base font-semibold opacity-50">${editMode ? '수정 중...' : '저장 중...'}</span>`;
+
+                    if (editMode) {
+                        await updateNotice(editNoticeId, {
+                            title,
+                            content,
+                            is_important: isImportant,
+                            updated_at: new Date().toISOString()
+                        });
+
+                        await client.from('notice_links').delete().eq('notice_id', editNoticeId);
+
+                        const validLinks = links.filter(link => link.url.trim());
+                        if (validLinks.length > 0) {
+                            const linksToInsert = validLinks.map((link, index) => {
+                                const url = link.url.trim();
+                                const title = link.title?.trim();
+                                return {
+                                    notice_id: editNoticeId,
+                                    url,
+                                    title: title || url,
+                                    order: index
+                                };
+                            });
+
+                            const { error: linkError } = await client
+                                .from('notice_links')
+                                .insert(linksToInsert);
+
+                            if (linkError) throw linkError;
+                        }
+
+                        showSuccess('공지사항이 수정되었습니다.');
+                    } else {
+                        const notice = await createNotice(title, content, isImportant);
+
+                        const validLinks = links.filter(link => link.url.trim());
+                        if (notice?.id && validLinks.length > 0) {
+                            const linksToInsert = validLinks.map((link, index) => {
+                                const url = link.url.trim();
+                                const title = link.title?.trim();
+                                return {
+                                    notice_id: notice.id,
+                                    url,
+                                    title: title || url,
+                                    order: index
+                                };
+                            });
+
+                            const { error: linkError } = await client
+                                .from('notice_links')
+                                .insert(linksToInsert);
+
+                            if (linkError) throw linkError;
+                        }
+                        showSuccess('공지사항이 작성되었습니다.');
+                    }
+
+                    setTimeout(() => {
+                        smoothNavigate('notice_list.html');
+                    }, 1000);
+                } catch (error) {
+                    showError(editMode ? '공지사항 수정에 실패했습니다.' : '공지사항 작성에 실패했습니다.');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = `<span class="text-base font-semibold">${editMode ? '수정' : '완료'}</span>`;
+                }
+            });
+        });
+
+        async function loadNoticeForEdit(noticeId) {
+            try {
+                const client = initSupabase();
+                if (!client) {
+                    showError('Supabase 클라이언트를 초기화할 수 없습니다.');
+                    return;
+                }
+                
+                const { data: notice, error } = await client
+                    .from('notices')
+                    .select('*')
+                    .eq('id', noticeId)
+                    .single();
+
+                if (error) throw error;
+
+                // 내용 로드
+                document.getElementById('titleInput').value = notice.title || '';
+                document.getElementById('contentInput').value = notice.content || '';
+                document.getElementById('importantCheckbox').checked = notice.is_important || false;
+
+                const { data: noticeLinks, error: linkError } = await client
+                    .from('notice_links')
+                    .select('*')
+                    .eq('notice_id', noticeId)
+                    .order('order', { ascending: true });
+
+                if (linkError) throw linkError;
+
+                if (noticeLinks && noticeLinks.length > 0) {
+                    links = noticeLinks
+                        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                        .map((link, index) => ({
+                            id: Date.now() + index,
+                            url: link.url || '',
+                            title: link.title || link.url || '',
+                            dbId: link.id
+                        }));
+                    renderLinks();
+                }
+            } catch (error) {
+                showError('공지사항을 불러올 수 없습니다.');
+                setTimeout(() => {
+                    smoothNavigate('notice_list.html');
+                }, 2000);
+            }
+        }
+
+        function addLinkInput() {
+            if (links.length >= 5) {
+                showWarning('링크는 최대 5개까지 추가할 수 있습니다.');
+                return;
+            }
+
+            const linkId = Date.now();
+            links.push({ id: linkId, url: '', title: '' });
+            renderLinks();
+
+            setTimeout(() => {
+                const input = document.querySelector(`[data-link-id="${linkId}"] input[name="title"]`)
+                    || document.querySelector(`[data-link-id="${linkId}"] input[name="url"]`);
+                input?.focus();
+            }, 100);
+        }
+
+        function removeLink(linkId) {
+            links = links.filter(link => link.id !== linkId);
+            renderLinks();
+        }
+
+        function updateLinkField(linkId, field, value) {
+            const target = links.find(link => link.id === linkId);
+            if (!target) return;
+
+            const trimmed = value.trim();
+            target[field] = trimmed;
+
+            if (field === 'url') {
+                if (!trimmed) {
+                    if (!target.title || target.title === target.url) {
+                        target.title = '';
+                    }
+                    return;
+                }
+
+                try {
+                    const parsed = new URL(trimmed);
+                    if (!target.title || target.title === target.url) {
+                        target.title = parsed.hostname;
+                    }
+                } catch (err) {
+                    if (!target.title || target.title === target.url) {
+                        target.title = trimmed;
+                    }
+                }
+            }
+        }
+
+        function renderLinks() {
+            const container = document.getElementById('linkList');
+            const countLabel = document.getElementById('linkCount');
+            countLabel.textContent = links.length;
+
+            if (links.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = links.map(link => `
+                <div class="flex items-center gap-3 p-3 rounded-xl border border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark shadow-sm" data-link-id="${link.id}">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined" style="font-size: 22px;">link</span>
+                    </div>
+                    <div class="flex-1 flex flex-col gap-2">
+                        <input
+                            type="text"
+                            name="title"
+                            value="${encodeAttribute(link.title)}"
+                            placeholder="링크 제목 (선택)"
+                            class="w-full bg-transparent text-sm font-medium text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light focus:outline-none"
+                            oninput="updateLinkField(${link.id}, 'title', this.value)" />
+                        <input
+                            type="url"
+                            name="url"
+                            value="${encodeAttribute(link.url)}"
+                            placeholder="https://example.com"
+                            class="w-full bg-transparent text-sm text-text-primary-light dark:text-text-primary-dark placeholder:text-text-secondary-light focus:outline-none"
+                            oninput="updateLinkField(${link.id}, 'url', this.value)" />
+                    </div>
+                    <button type="button" onclick="removeLink(${link.id})" class="p-1.5 text-text-secondary-light dark:text-text-secondary-dark hover:text-red-500 transition-colors">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function encodeAttribute(value) {
+            if (!value) return '';
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        window.removeLink = removeLink;
+        window.updateLinkField = updateLinkField;
+    </script>
+</body>
+
+</html>
+
