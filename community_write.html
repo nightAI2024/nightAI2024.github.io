@@ -157,7 +157,7 @@
             // 이벤트 리스너
             document.getElementById('closeBtn').addEventListener('click', () => {
                 showConfirm('작성 중인 내용이 사라집니다. 나가시겠습니까?', () => {
-                    smoothNavigate('community.html', 300);
+                    smoothNavigate('community', 300);
                 });
             });
 
@@ -183,7 +183,7 @@
                 if (post.author_id !== currentUser.id) {
                     showError('본인의 게시글만 수정할 수 있습니다.');
                     setTimeout(() => {
-                        smoothNavigate('community.html');
+                        smoothNavigate('community');
                     }, 2000);
                     return;
                 }
@@ -204,7 +204,7 @@
             } catch (error) {
                 showError('게시글을 불러올 수 없습니다.');
                 setTimeout(() => {
-                    smoothNavigate('community.html');
+                    smoothNavigate('community');
                 }, 2000);
             }
         }

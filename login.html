@@ -390,7 +390,7 @@
                     await signIn(email, password);
                     showSuccess('로그인 성공!');
                     setTimeout(() => {
-                        smoothNavigate('main.html');
+                        smoothNavigate('main');
                     }, 800);
                 } catch (error) {
                     showError(error.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인하세요.');

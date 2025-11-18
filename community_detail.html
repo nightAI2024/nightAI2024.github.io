@@ -157,7 +157,7 @@
 
             // 이벤트 리스너
             document.getElementById('backBtn').addEventListener('click', () => {
-                smoothNavigate('community.html', 300);
+                smoothNavigate('community', 300);
             });
             document.getElementById('submitComment').addEventListener('click', submitComment);
             document.getElementById('cancelReply').addEventListener('click', cancelReply);
@@ -562,7 +562,7 @@
 
                 showSuccess('게시글이 삭제되었습니다.');
                 setTimeout(() => {
-                    smoothNavigate('community.html');
+                    smoothNavigate('community');
                 }, 1000);
             } catch (error) {
                 showError('게시글 삭제에 실패했습니다.');

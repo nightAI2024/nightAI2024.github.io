@@ -161,7 +161,7 @@
             if (!noticeId) {
                 showError('공지사항 ID가 없습니다.');
                 setTimeout(() => {
-                    smoothNavigate('notice_list.html');
+                    smoothNavigate('notice_list');
                 }, 1000);
                 return;
             }
@@ -345,7 +345,7 @@
                     await deleteNotice(noticeId);
                     showSuccess('공지사항이 삭제되었습니다.');
                     setTimeout(() => {
-                        smoothNavigate('notice_list.html');
+                        smoothNavigate('notice_list');
                     }, 1000);
                 } catch (error) {
                     showError('공지사항 삭제에 실패했습니다.');
