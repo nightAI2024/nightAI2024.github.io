@@ -466,12 +466,14 @@
                 getAdminInfo()
             ]);
 
-            if (!canManage && !adminInfo) {
+            const hasAdminRights = hasAdminPrivileges(adminInfo);
+
+            if (!canManage && !hasAdminRights) {
                 showWarning('게시글을 수정하거나 삭제할 권한이 없습니다.');
                 return;
             }
 
-            const isAdmin = !!adminInfo;
+            const isAdmin = hasAdminRights;
             const isOwnPost = postData.author_id === currentUser.id;
             const menuHtml = `
                 <div id="postMenuOverlay" class="fixed inset-0 bg-black/50 z-50 flex items-end" style="animation: fadeIn 0.2s ease;">
@@ -523,12 +525,14 @@
             const adminInfo = await getAdminInfo();
             const isOwnPost = postData?.author_id === currentUser?.id;
 
-            if (!isOwnPost && !adminInfo) {
+            const hasAdminRights = hasAdminPrivileges(adminInfo);
+
+            if (!isOwnPost && !hasAdminRights) {
                 showError('게시글을 삭제할 권한이 없습니다.');
                 return;
             }
 
-            const isAdminDeletion = !!adminInfo && !isOwnPost;
+            const isAdminDeletion = hasAdminRights && !isOwnPost;
 
             showConfirm('정말 이 게시글을 삭제하시겠습니까?', async () => {
                 await performDelete(isAdminDeletion, adminInfo);

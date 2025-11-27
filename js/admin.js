@@ -28,10 +28,15 @@ function createAdminBadge(displayName) {
   return `<span class="text-xs font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-500 px-2 py-0.5 rounded-full shadow-sm border border-yellow-400">${escapeHtml(name)}</span>`;
 }
 
+// admin_roles.role 이 'admin' 인 경우에만 실질적인 권한 부여
+function hasAdminPrivileges(adminInfo) {
+  return adminInfo?.role === 'admin';
+}
+
 // 관리자인지 확인 (간단한 boolean)
 async function isAdmin() {
   const adminInfo = await getAdminInfo();
-  return !!adminInfo;
+  return hasAdminPrivileges(adminInfo);
 }
 
 // 게시글 삭제 권한 확인 (본인 또는 관리자)
@@ -44,7 +49,7 @@ async function canDeletePost(authorId) {
   
   // 관리자면 삭제 가능
   const adminInfo = await getAdminInfo();
-  return !!adminInfo;
+  return hasAdminPrivileges(adminInfo);
 }
 
 // 댓글 삭제 권한 확인 (본인 또는 관리자)
@@ -57,12 +62,13 @@ async function canDeleteComment(authorId) {
   
   // 관리자면 삭제 가능
   const adminInfo = await getAdminInfo();
-  return !!adminInfo;
+  return hasAdminPrivileges(adminInfo);
 }
 
 // 공지사항 작성 권한 확인 (관리자만 가능)
 async function canWriteNotice() {
   const adminInfo = await getAdminInfo();
-  return !!adminInfo;
+  return hasAdminPrivileges(adminInfo);
 }
+
 

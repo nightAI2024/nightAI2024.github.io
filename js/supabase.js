@@ -59,7 +59,7 @@ async function getCurrentSession() {
 async function requireAuth() {
   const session = await getCurrentSession();
   if (!session) {
-    window.location.href = '/login.html';
+    window.location.href = '/login';
     return false;
   }
   return true;
@@ -69,7 +69,7 @@ async function requireAuth() {
 async function requireGuest() {
   const session = await getCurrentSession();
   if (session) {
-    window.location.href = '/main.html';
+    window.location.href = '/main';
     return false;
   }
   return true;
@@ -90,7 +90,7 @@ async function isAdmin() {
       .eq('user_id', user.id)
       .single();
 
-    return !!data;
+    return data?.role === 'admin';
   } catch (error) {
     return false;
   }
