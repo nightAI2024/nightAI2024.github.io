@@ -147,8 +147,7 @@
         // 기수 및 지역 표시 함수
         function formatBatchLabel(batch) {
             if (!batch) return '';
-            const b = String(batch);
-            return b.endsWith('_s') ? `${b.replace('_s', '')}기 (서울)` : `${b}기 (광주)`;
+            return batch.includes('기') ? batch : `${batch}기`; 
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -186,10 +185,10 @@
                 const userBatchDisplay = document.getElementById('userBatchDisplay');
                 if (userBatchDisplay) {
                     userBatchDisplay.innerHTML = `
-                        <span class="text-sm font-semibold text-primary bg-primary/10 dark:bg-primary/20 px-2 py-1 rounded-full">
-                            ${userBatch}기
-                        </span>
-                    `;
+                    <span class="text-sm font-semibold text-primary bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full border border-primary/30">
+                        ${formatBatchLabel(userBatch)}
+                    </span>
+                `;
                 }
 
                 // members 테이블에서 모든 기수의 모든 회원 가져오기 (회원가입 안 한 사람도 포함)
@@ -386,7 +385,7 @@
                         </button>
                         ${uniqueBatches.map((batch) => `
                             <button data-batch="${batch}" class="batch-btn flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full pl-4 pr-4 bg-background-light dark:bg-background-dark">
-                                <p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">${batch}기</p>
+                                <p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">${formatBatchLabel(batch)}</p>
                             </button>
                         `).join('')}
                     `;
@@ -465,8 +464,8 @@
                 
                 // 다른 기수 라벨
                 const otherBatchLabel = !isMyBatch 
-                    ? `<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark bg-background-light dark:bg-background-dark px-2 py-0.5 rounded">${formatBatchLabel(member.batch)}</span>`
-                    : '';
+                ? `<span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800">${formatBatchLabel(member.batch)}</span>`
+                : '';
                 
                 // 내 프로필 표시 라벨
                 const myProfileLabel = isMyProfile 
