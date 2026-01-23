@@ -136,24 +136,19 @@
         // 휴대폰 번호 하이픈 추가 함수
         function formatPhoneNumber(phone) {
             if (!phone) return '';
-            // 숫자만 남기기
             const cleaned = phone.replace(/\D/g, '');
-            // 010-1234-5678 또는 010-123-4567 형식 대응
             const match = cleaned.match(/^(\d{3})(\d{3,4})(\d{4})$/);
             if (match) {
-                return `${match[1]}-${match[2]}-${match[3]}`;
+                return `${match[1]}-${match[2]}-${match[3]}`; // 010-9120-7509
             }
-            return phone; // 매칭되지 않으면 원본 반환
+            return phone;
         }
         
         // 기수 및 지역 표시 함수
         function formatBatchLabel(batch) {
             if (!batch) return '';
-            const batchStr = String(batch);
-            if (batchStr.endsWith('_s')) {
-                return `${batchStr.replace('_s', '')}기 (서울)`;
-            }
-            return `${batchStr}기 (광주)`;
+            const b = String(batch);
+            return b.endsWith('_s') ? `${b.replace('_s', '')}기 (서울)` : `${b}기 (광주)`;
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -514,10 +509,10 @@
                                             </p>
                                         ` : ''}
                                         ${member.phone ? `
-                                            <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-1">
-                                                ${escapeHtml(formatPhoneNumber(member.phone))}
-                                            </p>
-                                        ` : ''}
+                                        <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-1">
+                                            ${escapeHtml(formatPhoneNumber(member.phone))} 
+                                        </p>
+                                    ` : ''}
                                     ` : (canShowEmail || canShowPhone) ? `
                                         <!-- 다른 기수이지만 정보공개 설정이 켜져있으면: 모든 정보 표시 -->
                                         ${member.latest_career ? `
