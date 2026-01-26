@@ -78,11 +78,14 @@
                     </div>
                 </div>
                 <div class="flex w-full max-w-[480px] gap-3">
-                    <button id="callBtn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 text-primary text-sm font-bold leading-normal tracking-[0.015em] flex-1">
+                    <button id="callBtn" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 text-primary text-sm font-bold leading-normal tracking-[0.015em] flex-1 gap-2">
+                        <span class="material-symbols-outlined text-lg">call</span>
                         <span class="truncate">전화걸기</span>
                     </button>
-                    <button id="emailBtn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] flex-1">
-                        <span class="truncate">이메일 보내기</span>
+                
+                    <button id="emailBtn" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] flex-1 gap-2">
+                        <span class="material-symbols-outlined text-lg">content_copy</span>
+                        <span class="truncate">이메일 복사하기</span>
                     </button>
                 </div>
             </div>
@@ -358,11 +361,16 @@
                 }
 
                 if (canShowEmail && profile.email) {
-                    // 이메일 보내기
+                    // 이메일 복사하기 기능
                     emailBtn.addEventListener('click', () => {
-                        window.location.href = `mailto:${profile.email}`;
+                        // 클립보드로 이메일 주소 복사
+                        navigator.clipboard.writeText(profile.email).then(() => {
+                            // 복사 성공 시 사용자에게 알림 (alert 대신 토스트 메시지를 쓰면 더 세련돼 보입니다!)
+                            alert('이메일 주소가 복사되었습니다.');
+                        }).catch(err => {
+                            console.error('복사 실패:', err);
+                        });
                     });
-                    emailBtn.innerHTML = '<span class="truncate">이메일 보내기</span>';
                 } else {
                     // 버튼 비활성화 및 스타일 변경
                     emailBtn.disabled = true;
