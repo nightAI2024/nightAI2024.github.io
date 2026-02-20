@@ -149,18 +149,18 @@
             document.getElementById('backBtn').addEventListener('click', () => window.history.back());
 
             try {
-                // 현재 사용자 정보 가져오기 (기수 비교용)
+                // 현재 사용자 정보 가져오기 (기수는 members 테이블 기준)
                 const currentUser = await getCurrentUser();
                 const { data: currentUserProfile } = await client
                     .from('profiles')
-                    .select('batch, name')
+                    .select('name, members(batch)')
                     .eq('id', currentUser.id)
                     .single();
 
-                // 프로필 로드
+                // 프로필 로드 (기수는 members 조인)
                 const { data: profile, error: profileError } = await client
                     .from('profiles')
-                    .select('*')
+                    .select('*, members(batch, phone)')
                     .eq('id', memberId)
                     .single();
 
@@ -170,9 +170,9 @@
                 if (currentUser.id !== memberId) {
                     try {
                         const currentUserName = currentUserProfile?.name || '익명';
-                        const currentUserBatch = currentUserProfile?.batch;
+                        const currentUserBatch = currentUserProfile?.members?.batch ?? currentUserProfile?.members?.[0]?.batch;
                         const profileOwnerName = profile.name || '익명';
-                        const profileOwnerBatch = profile.batch;
+                        const profileOwnerBatch = profile?.members?.batch ?? profile?.members?.[0]?.batch;
                         
                         // Edge Function 호출 (비동기, 실패해도 무시)
                         fetch(`${SUPABASE_CONFIG.url}/functions/v1/slack-notification`, {
@@ -212,9 +212,10 @@
                     throw settingsError;
                 }
 
-                // 기수 비교: 같은 기수인지 확인
-                const isSameBatch = currentUserProfile && profile.batch && 
-                    currentUserProfile.batch === profile.batch;
+                // 기수 비교: 같은 기수인지 확인 (members.batch 기준)
+                const currentBatch = currentUserProfile?.members?.batch ?? currentUserProfile?.members?.[0]?.batch;
+                const profileBatch = profile?.members?.batch ?? profile?.members?.[0]?.batch;
+                const isSameBatch = currentBatch && profileBatch && currentBatch === profileBatch;
 
                 // privacy_settings 처리: 실제 데이터베이스 값 그대로 사용
                 // privacySettingsData가 있으면 그 값을 사용, 없으면 null
@@ -255,8 +256,8 @@
                 // 이름
                 document.getElementById('userName').textContent = profile.name || '이름 없음';
 
-                // 기수
-                const batch = profile.batch || '?';
+                // 기수 (members 테이블)
+                const batch = profile?.members?.batch ?? profile?.members?.[0]?.batch ?? '?';
                 document.getElementById('userInfo').textContent = `${batch}기`;
 
                 // 소개
@@ -270,15 +271,16 @@
                 const contactInfoEl = document.getElementById('contactInfo');
                 let contactHtml = '';
 
-                // 휴대폰 (기수 체크 반영)
+                // 휴대폰 (members 테이블, 기수 체크 반영)
+                const profilePhone = profile?.members?.phone ?? profile?.members?.[0]?.phone ?? profile?.phone;
                 if (canShowPhone) {
-                    if (profile.phone) {
+                    if (profilePhone) {
                         contactHtml += `
                             <div class="flex items-center gap-4">
                                 <span class="material-symbols-outlined text-xl text-primary">phone_iphone</span>
                                 <div class="flex flex-col">
                                     <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
-                                    <p class="text-sm font-medium">${escapeHtml(profile.phone)}</p>
+                                    <p class="text-sm font-medium">${escapeHtml(profilePhone)}</p>
                                 </div>
                             </div>
                         `;
@@ -346,9 +348,9 @@
                 const callBtn = document.getElementById('callBtn');
                 const emailBtn = document.getElementById('emailBtn');
 
-                if (canShowPhone && profile.phone) {
+                if (canShowPhone && profilePhone) {
                     // 전화번호에서 하이픈 제거하여 전화걸기
-                    const cleanPhone = profile.phone.replace(/[^0-9]/g, '');
+                    const cleanPhone = profilePhone.replace(/[^0-9]/g, '');
                     callBtn.addEventListener('click', () => {
                         window.location.href = `tel:${cleanPhone}`;
                     });

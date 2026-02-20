@@ -206,7 +206,7 @@
                 // 프로필 로드
                 const { data: profile, error: profileError } = await client
                     .from('profiles')
-                    .select('*')
+                    .select('*, members(phone)')
                     .eq('id', user.id)
                     .single();
 
@@ -214,9 +214,10 @@
 
                 currentProfile = profile;
 
-                // 폼에 기존 정보 채우기
+                // 폼에 기존 정보 채우기 (phone은 members 테이블)
+                const memberPhone = profile?.members?.phone ?? profile?.members?.[0]?.phone;
                 document.getElementById('introduction').value = profile.introduction || '';
-                document.getElementById('phone').value = profile.phone || '';
+                document.getElementById('phone').value = memberPhone ?? profile?.phone ?? '';
                 document.getElementById('email').value = profile.email || '';
 
                 // 프로필 이미지 설정
@@ -286,10 +287,9 @@
 
                         setLoading('saveBtn', true);
 
-                        // 프로필 업데이트 (이미지 URL 포함)
+                        // 프로필 업데이트 (phone은 members 테이블에만 저장)
                         const updateData = {
                             introduction: introduction,
-                            phone: phone,
                             email: email,
                             updated_at: new Date().toISOString()
                         };
@@ -307,6 +307,16 @@
                             .eq('id', user.id);
 
                         if (updateError) throw updateError;
+
+                        // 휴대폰은 members 테이블에만 저장
+                        const memberId = currentProfile?.member_id;
+                        if (memberId) {
+                            const { error: memberError } = await client
+                                .from('members')
+                                .update({ phone: phone || null })
+                                .eq('id', memberId);
+                            if (memberError) throw memberError;
+                        }
 
                         // 삭제된 경력 삭제
                         for (const id of deletedCareers) {

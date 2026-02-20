@@ -183,10 +183,10 @@
             document.querySelector('.flex.size-12.shrink-0').addEventListener('click', () => window.history.back());
 
             try {
-                // 사용자 프로필 정보 가져오기 (기수 정보 필요)
+                // 사용자 프로필 정보 가져오기 (기수는 members 테이블)
                 const { data: profile, error: profileError } = await client
                     .from('profiles')
-                    .select('batch')
+                    .select('members(batch)')
                     .eq('id', user.id)
                     .single();
 

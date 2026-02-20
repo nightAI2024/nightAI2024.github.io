@@ -233,7 +233,7 @@
 
                 const { data: profile, error } = await client
                     .from('profiles')
-                    .select('*')
+                    .select('*, members(batch)')
                     .eq('id', user.id)
                     .single();
 
@@ -242,7 +242,8 @@
                 const headerGreetingEl = document.getElementById('headerGreeting');
 
                 const displayName = profile.name || '원우님';
-                const batchLabel = profile.batch ? `${profile.batch}기` : '';
+                const batchFromMember = profile?.members?.batch ?? profile?.members?.[0]?.batch;
+                const batchLabel = batchFromMember ? `${batchFromMember}기` : '';
 
                 headerGreetingEl.textContent = batchLabel
                     ? `${displayName}님, 환영합니다 (${batchLabel})`
@@ -269,7 +270,7 @@
                         content,
                         created_at,
                         is_important,
-                        profiles:author_id (name, batch)
+                        profiles:author_id (name, members(batch))
                     `)
                     .eq('is_deleted', false)
                     .order('is_important', { ascending: false })
@@ -303,7 +304,7 @@
                         <div class="flex items-center gap-2 text-xs text-text-light-secondary dark:text-text-dark-secondary mt-3">
                             <span>${escapeHtml(highlight.profiles?.name || '관리자')}</span>
                             <span>·</span>
-                            <span>${highlight.profiles?.batch ? `${highlight.profiles.batch}기` : '운영팀'}</span>
+                            <span>${(highlight.profiles?.members?.batch ?? highlight.profiles?.members?.[0]?.batch) ? `${(highlight.profiles?.members?.batch ?? highlight.profiles?.members?.[0]?.batch)}기` : '운영팀'}</span>
                             <span>·</span>
                             <span>${formatDate(highlight.created_at)}</span>
                         </div>
@@ -324,7 +325,7 @@
                                 ${escapeHtml(getSnippet(notice.content, 80))}
                             </p>
                             <p class="text-[11px] text-text-light-secondary dark:text-text-dark-secondary mt-2">
-                                ${notice.profiles?.name || '관리자'}${notice.profiles?.batch ? ` (${notice.profiles.batch}기)` : ''} · ${formatDate(notice.created_at)}
+                                ${notice.profiles?.name || '관리자'}${(notice.profiles?.members?.batch ?? notice.profiles?.members?.[0]?.batch) ? ` (${(notice.profiles?.members?.batch ?? notice.profiles?.members?.[0]?.batch)}기)` : ''} · ${formatDate(notice.created_at)}
                             </p>
                         </a>
                     `).join('') + '</div>'
@@ -359,7 +360,7 @@
                         content,
                         created_at,
                         author_id,
-                        profiles:author_id (name, batch),
+                        profiles:author_id (name, members(batch)),
                         post_likes (user_id)
                     `)
                     .eq('is_deleted', false)
@@ -394,7 +395,7 @@
                         content,
                         created_at,
                         author_id,
-                        profiles:author_id (name, batch)
+                        profiles:author_id (name, members(batch))
                     `)
                     .eq('is_deleted', false)
                     .order('created_at', { ascending: false })
@@ -451,7 +452,7 @@
                     <div class="flex items-center gap-2 text-xs text-text-light-secondary dark:text-text-dark-secondary mt-3">
                         <span>${escapeHtml(highlightPost.profiles?.name || '익명')}</span>
                         <span>·</span>
-                        <span>${highlightPost.profiles?.batch ? `${highlightPost.profiles.batch}기` : 'CAIO'}</span>
+                        <span>${(highlightPost.profiles?.members?.batch ?? highlightPost.profiles?.members?.[0]?.batch) ? `${(highlightPost.profiles?.members?.batch ?? highlightPost.profiles?.members?.[0]?.batch)}기` : 'CAIO'}</span>
                         <span>·</span>
                         <span>${formatDate(highlightPost.created_at)}</span>
                     </div>
@@ -463,7 +464,7 @@
                     <a class="block rounded-xl border border-border-light dark:border-border-dark bg-foreground-light dark:bg-card-dark/60 p-3 hover:bg-primary/5 dark:hover:bg-primary/15 transition-colors"
                         href="community_detail.html?id=${post.id}">
                         <p class="text-sm font-semibold text-text-light-primary dark:text-text-dark-primary mb-1">
-                            ${escapeHtml(post.profiles?.name || '익명')}${post.profiles?.batch ? ` · ${post.profiles.batch}기` : ''}
+                            ${escapeHtml(post.profiles?.name || '익명')}${(post.profiles?.members?.batch ?? post.profiles?.members?.[0]?.batch) ? ` · ${(post.profiles?.members?.batch ?? post.profiles?.members?.[0]?.batch)}기` : ''}
                         </p>
                         <p class="text-sm text-text-light-secondary dark:text-text-dark-secondary leading-relaxed">
                             ${escapeHtml(getSnippet(post.content, 90))}

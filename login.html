@@ -22,12 +22,35 @@
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+KR:wght@400;500;600;700&amp;display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <!-- Supabase JavaScript Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { display: "Inter" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" } } } };</script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f62fe",
+                        "primary-deep": "#0d4dca",
+                        "accent": "#8b5cf6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0a0e17"
+                    },
+                    fontFamily: { display: ["Noto Sans KR", "Inter", "sans-serif"] },
+                    borderRadius: { DEFAULT: "0.375rem", lg: "0.75rem", xl: "1rem", "2xl": "1.25rem", "3xl": "1.5rem", full: "9999px" },
+                    boxShadow: {
+                        "glass": "0 8px 32px rgba(0,0,0,0.08)",
+                        "glass-lg": "0 24px 48px rgba(0,0,0,0.12)",
+                        "glow": "0 0 40px rgba(15, 98, 254, 0.15)",
+                        "inner-glow": "inset 0 1px 0 0 rgba(255,255,255,0.06)"
+                    }
+                }
+            }
+        };
+    </script>
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -39,27 +62,26 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        
+        @keyframes gradient-slow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
-        
         .splash-screen {
             position: fixed;
             inset: 0;
@@ -68,102 +90,126 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(-45deg, #137fec, #1e40af, #3b82f6, #60a5fa);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            background: linear-gradient(135deg, #0a0e17 0%, #0f62fe 40%, #1e3a5f 70%, #0a0e17 100%);
+            background-size: 200% 200%;
+            animation: gradient 12s ease infinite;
+            transition: opacity 0.9s ease, visibility 0.9s ease;
         }
-        
         .splash-screen.hidden {
             opacity: 0;
             visibility: hidden;
         }
-        
         .splash-logo {
             animation: fadeIn 1s ease-out;
+            letter-spacing: -0.04em;
         }
-        
         .splash-text {
-            animation: fadeIn 1.2s ease-out 0.3s both;
+            animation: fadeIn 1.2s ease-out 0.25s both;
         }
-        
         .splash-loader {
-            animation: fadeIn 1.4s ease-out 0.6s both;
+            animation: fadeIn 1.4s ease-out 0.5s both;
         }
-        
         .loader-dot {
             animation: pulse 1.5s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
         }
-        
-        .loader-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .loader-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
+        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes shimmer {
-            0% { opacity: 0.3; }
+            0% { opacity: 0.4; }
             50% { opacity: 1; }
-            100% { opacity: 0.3; }
+            100% { opacity: 0.4; }
         }
-        
         .splash-loader div:last-child {
             animation: shimmer 2s ease-in-out infinite;
         }
-        
-        .gradient-bg {
-            background: linear-gradient(-45deg, #137fec, #1e40af, #3b82f6, #60a5fa);
+        /* 메인 배경: 딥 블루 메시 + 그라데이션 */
+        .login-page-bg {
+            background: linear-gradient(165deg, #0a0e17 0%, #0d1424 25%, #0f1930 50%, #0d1424 75%, #0a0e17 100%);
             background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+            animation: gradient-slow 20s ease infinite;
         }
-        
-        .dark .gradient-bg {
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+        .login-page-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(15, 98, 254, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(15, 98, 254, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 0% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            pointer-events: none;
         }
-        
+        .login-page-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z' fill='%23ffffff' fill-opacity='0.02'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
         .glass-effect {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(229, 231, 235, 0.8);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03), var(--tw-shadow-inner-glow, none);
         }
-        
         .dark .glass-effect {
-            background: rgba(17, 24, 39, 0.98);
-            border: 1px solid rgba(75, 85, 99, 0.5);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
-        
+        .login-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0f62fe, #8b5cf6);
+            opacity: 0.9;
+        }
+        .input-focus-effect {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
         .input-focus-effect:focus {
-            box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.1);
-            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.12);
+            border-color: #0f62fe;
         }
-        
         .premium-button {
-            background: #137fec;
-            box-shadow: 0 4px 6px -1px rgba(19, 127, 236, 0.2), 0 2px 4px -1px rgba(19, 127, 236, 0.1);
+            background: linear-gradient(180deg, #0f62fe 0%, #0d4dca 100%);
+            box-shadow: 0 4px 14px rgba(15, 98, 254, 0.35);
             transition: all 0.2s ease;
         }
-        
         .premium-button:hover {
-            background: #0d6bd8;
-            box-shadow: 0 6px 8px -1px rgba(19, 127, 236, 0.3), 0 4px 6px -1px rgba(19, 127, 236, 0.2);
+            background: linear-gradient(180deg, #1a6fff 0%, #0f62fe 100%);
+            box-shadow: 0 6px 20px rgba(15, 98, 254, 0.4);
+            transform: translateY(-1px);
         }
-        
         .premium-button:active {
-            background: #0b5fc7;
-            box-shadow: 0 2px 4px -1px rgba(19, 127, 236, 0.2);
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(15, 98, 254, 0.3);
         }
-        
-        
+        .badge-executive {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 9999px;
+        }
         body {
-            min-height: max(884px, 100dvh);
+            min-height: 100dvh;
         }
     </style>
 </head>
@@ -181,74 +227,72 @@
             
             <!-- Subtitle -->
             <div class="splash-text mb-12">
-                <p class="text-white/90 text-xl md:text-2xl font-semibold tracking-wide mb-2">
+                <p class="text-white/95 text-xl md:text-2xl font-semibold tracking-wide mb-2">
                     Chief AI Officer
                 </p>
-                <p class="text-white/70 text-sm md:text-base font-normal">
-                    AI 리더들의 네트워크 플랫폼
+                <p class="text-white/75 text-sm md:text-base font-normal">
+                    C레벨 AI 리더를 위한 전용 네트워크
                 </p>
             </div>
             
             <!-- Loading Indicator -->
             <div class="splash-loader">
-                <div class="flex items-center justify-center gap-3 mb-2">
-                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
-                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
-                    <div class="loader-dot w-2.5 h-2.5 bg-white rounded-full"></div>
+                <div class="flex items-center justify-center gap-2.5 mb-2">
+                    <div class="loader-dot w-2 h-2 bg-white/90 rounded-full"></div>
+                    <div class="loader-dot w-2 h-2 bg-white/90 rounded-full"></div>
+                    <div class="loader-dot w-2 h-2 bg-white/90 rounded-full"></div>
                 </div>
-                <div class="text-white/60 text-xs font-medium tracking-wider mt-4">
-                    LOADING...
+                <div class="text-white/50 text-[11px] font-medium tracking-[0.2em] mt-4 uppercase">
+                    Loading
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
-        <!-- 고급스러운 그라데이션 배경 -->
-        <div class="fixed inset-0 gradient-bg opacity-90 dark:opacity-95"></div>
-        
-        <!-- 미묘한 그리드 패턴 -->
-        <div class="fixed inset-0 opacity-10 dark:opacity-5" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 40px 40px;"></div>
-        
-        <!-- 빛나는 원형 효과 -->
-        <div class="fixed top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
-        <div class="fixed bottom-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
-        
-        <main class="relative flex w-full grow flex-col px-4 py-8 z-10">
-            <div class="flex-grow flex flex-col justify-center">
-                <!-- Logo & Headline -->
-                <div class="text-center mb-12">
-                    <h1 class="text-white tracking-tight text-7xl md:text-8xl font-black leading-none pb-4 drop-shadow-2xl mb-6">
-                        CAIO</h1>
-                    <p class="text-white/90 dark:text-white/90 text-xl md:text-2xl font-semibold leading-normal pb-2 tracking-wide">
-                        Chief AI Officer</p>
-                    <p class="text-white/80 dark:text-white/80 text-sm md:text-base font-normal">
-                        AI 리더들의 네트워크 플랫폼</p>
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden login-page-bg">
+        <main class="relative flex w-full flex-1 flex-col items-center justify-center px-4 py-12 sm:py-16 z-10">
+            <div class="w-full max-w-md">
+                <!-- 상단 브랜딩 -->
+                <div class="text-center mb-10 animate-[fadeInUp_0.6s_ease-out]">
+                    <span class="badge-executive mb-6 inline-flex">
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                        원우회 전용
+                    </span>
+                    <h1 class="text-white text-6xl sm:text-7xl md:text-8xl font-black tracking-tight leading-none mb-4" style="letter-spacing: -0.03em;">
+                        CAIO
+                    </h1>
+                    <p class="text-white/90 text-lg sm:text-xl font-semibold tracking-wide mb-1">
+                        Chief AI Officer
+                    </p>
+                    <p class="text-white/60 text-sm font-normal max-w-xs mx-auto">
+                        C레벨 AI 리더를 위한 전용 네트워크
+                    </p>
                 </div>
                 
                 <!-- Login Form -->
-                <div class="w-full max-w-md mx-auto">
-                    <div class="glass-effect rounded-2xl p-8 space-y-6">
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                <span class="material-symbols-outlined text-lg text-primary">alternate_email</span>
-                                <span>이메일</span>
-                            </label>                            <input id="email"
-                                class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white transition-all duration-300"
-                                placeholder="이메일을 입력하세요" type="email" value="" />
+                <div class="animate-[fadeInUp_0.6s_ease-out_0.15s_both]">
+                    <div class="glass-effect login-card rounded-2xl p-8 sm:p-10 space-y-6">
+                        <div class="space-y-1.5">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 0;">alternate_email</span>
+                                이메일
+                            </label>
+                            <input id="email"
+                                class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white"
+                                placeholder="work@company.com" type="email" value="" />
                         </div>
                         
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                <span class="material-symbols-outlined text-lg text-primary">lock</span>
-                                <span>비밀번호</span>
+                        <div class="space-y-1.5">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 0;">lock</span>
+                                비밀번호
                             </label>
-                            <div class="flex w-full items-stretch">
+                            <div class="flex w-full items-stretch rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-600 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
                                 <input id="password"
-                                    class="input-focus-effect flex w-full rounded-l-xl border-2 border-r-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 pr-2 text-base font-medium text-gray-900 dark:text-white transition-all duration-300"
-                                    placeholder="비밀번호를 입력하세요" type="password" value="" />
-                                <button id="togglePassword" class="flex items-center justify-center px-4 rounded-r-xl border-2 border-l-0 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined" id="passwordIcon">visibility</span>
+                                    class="input-focus-effect flex w-full rounded-none border-0 bg-gray-50/50 dark:bg-gray-800/50 h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white focus:ring-0"
+                                    placeholder="••••••••" type="password" value="" />
+                                <button id="togglePassword" type="button" class="flex items-center justify-center px-4 bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-primary transition-colors border-l border-gray-200 dark:border-gray-600">
+                                    <span class="material-symbols-outlined text-xl" id="passwordIcon">visibility</span>
                                 </button>
                             </div>
                         </div>
@@ -261,32 +305,61 @@
                         </div>
                         
                         <!-- Login Button -->
-                        <button id="loginBtn"
-                            class="premium-button flex w-full items-center justify-center rounded-xl h-14 px-6 text-base font-semibold text-white mt-4">
+                        <button id="loginBtn" type="button"
+                            class="premium-button flex w-full items-center justify-center gap-2 rounded-xl h-14 px-6 text-base font-semibold text-white mt-6">
+                            <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 0;">login</span>
                             로그인
                         </button>
                         
+                        <!-- 구분선 -->
+                        <div class="flex items-center gap-3 my-4">
+                            <span class="flex-1 h-px bg-gray-200 dark:bg-gray-600"></span>
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">또는</span>
+                            <span class="flex-1 h-px bg-gray-200 dark:bg-gray-600"></span>
+                        </div>
+                        
+                        <!-- Google 로그인 -->
+                        <button id="googleLoginBtn" type="button"
+                            class="flex w-full items-center justify-center gap-3 rounded-xl h-14 px-6 text-base font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
+                            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Google로 로그인
+                        </button>
+                        <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
+                            같은 이메일이면 기존 계정과 자동 연동됩니다
+                        </p>
+                        
+                        <p class="flex items-center justify-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 pt-2">
+                            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">shield</span>
+                            보안 로그인
+                        </p>
+                        
                         <!-- Sign Up Prompt -->
-                        <div class="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="text-center pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                아직 계정이 없으신가요? 
-                                <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors" href="signup">
-                                    회원가입
-                                </a>
+                                아직 계정이 없으신가요?
+                                <a class="font-semibold text-primary hover:underline focus:outline-none" href="signup">회원가입</a>
                             </p>
                         </div>
                     </div>
+                    </div>
                 </div>
-            </div>
+            <p class="mt-10 text-center text-white/40 text-xs font-medium">
+                CAIO 원우회 · Members Only
+            </p>
         </main>
     </div>
 
     <!-- 비밀번호 재설정 모달 -->
-    <div id="resetPasswordModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-effect rounded-2xl p-8 max-w-md w-full transform transition-all">
+    <div id="resetPasswordModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-effect login-card rounded-2xl p-8 max-w-md w-full shadow-glass-lg animate-[scaleIn_0.25s_ease-out]">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-black text-gray-900 dark:text-white">비밀번호 재설정</h2>
-                <button id="closeResetModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">비밀번호 재설정</h2>
+                <button id="closeResetModal" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
@@ -295,16 +368,16 @@
             </p>
             <div class="space-y-5">
                 <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                         <span class="material-symbols-outlined text-lg text-primary">mail</span>
-                        <span>이메일</span>
+                        이메일
                     </label>
                     <input id="resetEmailInput" 
-                        class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 text-base font-medium text-gray-900 dark:text-white transition-all duration-300" 
-                        placeholder="이메일을 입력하세요" 
+                        class="input-focus-effect w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50 focus:border-primary h-14 placeholder:text-gray-400 px-4 text-base font-medium text-gray-900 dark:text-white" 
+                        placeholder="work@company.com" 
                         type="email" />
                 </div>
-                <button id="sendResetEmailBtn" 
+                <button id="sendResetEmailBtn" type="button"
                     class="premium-button w-full rounded-xl h-14 px-6 text-base font-semibold text-white">
                     재설정 링크 보내기
                 </button>
@@ -345,8 +418,30 @@
         
         // 로그인 페이지 초기화
         document.addEventListener('DOMContentLoaded', async () => {
-            // 이미 로그인된 경우 메인으로 리디렉션
-            await requireGuest();
+            // OAuth 콜백: hash에 에러가 있으면 표시
+            const hash = window.location.hash || '';
+            if (hash.includes('error=')) {
+                const params = new URLSearchParams(hash.replace('#', ''));
+                const err = params.get('error_description') || params.get('error') || '로그인에 실패했습니다.';
+                showError(decodeURIComponent(err));
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            // 이미 로그인된 경우: 프로필에 member_id 있으면 메인, 없으면 구글 회원검증 페이지로
+            const session = await (async () => {
+                const c = initSupabase();
+                if (!c) return null;
+                const { data: { session: s } } = await c.auth.getSession();
+                return s;
+            })();
+            if (session) {
+                const profile = await getCurrentUserProfile();
+                if (profile && profile.member_id) {
+                    smoothNavigate('main');
+                    return;
+                }
+                smoothNavigate('google_verify.html');
+                return;
+            }
 
             const loginBtn = document.getElementById('loginBtn');
             const emailInput = document.getElementById('email');
@@ -399,6 +494,24 @@
                     loginBtn.textContent = '로그인';
                 }
             });
+
+            // Google 로그인
+            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            if (googleLoginBtn) {
+                googleLoginBtn.addEventListener('click', async () => {
+                    try {
+                        setLoading('googleLoginBtn', true);
+                        googleLoginBtn.disabled = true;
+                        googleLoginBtn.innerHTML = '<span class="inline-block w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></span> 이동 중...';
+                        await signInWithGoogle();
+                    } catch (error) {
+                        showError(error.message || '구글 로그인을 시작할 수 없습니다.');
+                        setLoading('googleLoginBtn', false);
+                        googleLoginBtn.disabled = false;
+                        googleLoginBtn.innerHTML = `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Google로 로그인`;
+                    }
+                });
+            }
 
             // 비밀번호 재설정 모달
             const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');

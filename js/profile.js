@@ -78,8 +78,8 @@ async function getMembersByBatch(batch) {
   try {
     const { data, error } = await client
       .from('profiles')
-      .select('id, name, batch, company, position, profile_image_url')
-      .eq('batch', batch)
+      .select('id, name, profile_image_url, members!inner(batch)')
+      .eq('members.batch', batch)
       .order('name');
 
     if (error) throw error;
@@ -97,9 +97,9 @@ async function searchMembers(searchTerm) {
   try {
     const { data, error } = await client
       .from('profiles')
-      .select('id, name, batch, company, position, profile_image_url')
-      .or(`name.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`)
-      .order('batch', { ascending: false });
+      .select('id, name, profile_image_url, members(batch)')
+      .or(`name.ilike.%${searchTerm}%`)
+      .order('name');
 
     if (error) throw error;
     return data;

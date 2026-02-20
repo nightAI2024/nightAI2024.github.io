@@ -189,7 +189,7 @@
                 // 공지사항 로드
                 const { data: notice, error } = await client
                     .from('notices')
-                    .select('*, profiles:author_id(*), notice_attachments(*)')
+                    .select('*, profiles:author_id(*, members(batch)), notice_attachments(*)')
                     .eq('id', noticeId)
                     .single();
 
@@ -205,7 +205,7 @@
                 // 화면에 표시
                 document.getElementById('noticeTitle').textContent = notice.title || '';
                 const authorName = notice.profiles?.name || '관리자';
-                const authorBatch = notice.profiles?.batch ? `${notice.profiles.batch}기` : '';
+                const authorBatch = (notice.profiles?.members?.batch ?? notice.profiles?.members?.[0]?.batch) ? `${(notice.profiles?.members?.batch ?? notice.profiles?.members?.[0]?.batch)}기` : '';
                 document.getElementById('noticeMeta').textContent =
                     `작성자: ${authorName}${authorBatch ? ` · ${authorBatch}` : ''} | 작성일: ${formatDate(notice.created_at)} | 조회수: ${(notice.view_count || 0) + 1}`;
                 

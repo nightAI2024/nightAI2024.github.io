@@ -58,16 +58,14 @@ async function signUp(email, password, memberData) {
     // 잠시 대기 (세션 안정화)
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // 2. 프로필 생성
+    // 2. 프로필 생성 (기수는 members 테이블에만 저장)
     const { data: profileData, error: profileError } = await client
       .from('profiles')
       .insert({
         id: authData.user.id,
         member_id: memberData.id,
         name: memberData.name,
-        batch: memberData.batch,
         email: email,
-        phone: memberData.phone,
       })
       .select()
       .single();
@@ -105,6 +103,83 @@ async function signIn(email, password) {
 
     if (error) throw error;
     return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// 현재 사용자의 프로필 조회 (member_id 여부 확인용)
+async function getCurrentUserProfile() {
+  const client = initSupabase();
+  if (!client) return null;
+  const user = await getCurrentUser();
+  if (!user) return null;
+  try {
+    const { data, error } = await client
+      .from('profiles')
+      .select('id, member_id, name, email')
+      .eq('id', user.id)
+      .single();
+    if (error || !data) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// 구글 로그인 후 회원 검증 성공 시 프로필 연동 (RPC 호출)
+// members 테이블에서 name, birth_date, phone으로 미가입 회원 검증 후 프로필 생성·연동
+async function linkGoogleAccountToMember(name, birthDate, phone, email) {
+  const client = initSupabase();
+  if (!client) throw new Error('Supabase 초기화 실패');
+  const user = await getCurrentUser();
+  if (!user) throw new Error('로그인이 필요합니다.');
+
+  const birthDateStr = birthDate.replace(/\D/g, '');
+  if (birthDateStr.length !== 8) throw new Error('생년월일 8자리를 입력하세요.');
+
+  const { data, error } = await client.rpc('verify_and_link_google_member', {
+    p_name: name.trim(),
+    p_birth_date: birthDateStr.slice(0, 4) + '-' + birthDateStr.slice(4, 6) + '-' + birthDateStr.slice(6, 8),
+    p_phone: phone.trim(),
+    p_email: email || user.email || null,
+  });
+
+  if (error) {
+    const msg = error.message || '회원 검증에 실패했습니다.';
+    throw new Error(msg.includes('등록된 회원') ? msg : '등록된 회원 정보가 없거나 이미 가입된 회원입니다.');
+  }
+  return data;
+}
+
+// 구글 로그인 (OAuth 리다이렉트)
+// Supabase 대시보드에서 Google Provider 활성화 및 Redirect URL 등록 필요.
+// 같은 이메일로 기존 이메일 계정과 연동하려면 Auth 설정에서 "Link accounts with same email" 활성화.
+async function signInWithGoogle() {
+  const client = initSupabase();
+  if (!client) throw new Error('Supabase 초기화 실패');
+
+  try {
+    const redirectTo = typeof window !== 'undefined' && window.location.origin
+      ? `${window.location.origin}${window.location.pathname || '/login.html'}`
+      : `${SUPABASE_CONFIG.url}/login.html`;
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) throw error;
+    if (data?.url) {
+      window.location.href = data.url;
+      return;
+    }
+    throw new Error('구글 로그인 URL을 가져올 수 없습니다.');
   } catch (error) {
     throw error;
   }

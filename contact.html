@@ -165,21 +165,21 @@
             });
 
             try {
-                // 현재 사용자의 기수 가져오기
+                // 현재 사용자의 기수 가져오기 (members 테이블 기준)
                 const currentUser = await getCurrentUser();
                 currentUserId = currentUser.id;
                 
                 const { data: currentUserProfile } = await client
                     .from('profiles')
-                    .select('batch')
+                    .select('member_id, members(batch)')
                     .eq('id', currentUser.id)
                     .single();
 
-                if (!currentUserProfile || !currentUserProfile.batch) {
+                const batchFromMember = currentUserProfile?.members?.batch ?? currentUserProfile?.members?.[0]?.batch;
+                if (!batchFromMember) {
                     throw new Error('사용자 기수 정보를 찾을 수 없습니다.');
                 }
-
-                userBatch = currentUserProfile.batch;
+                userBatch = batchFromMember;
                 
                 // 우측 상단에 내 기수 표시
                 const userBatchDisplay = document.getElementById('userBatchDisplay');
@@ -200,23 +200,19 @@
 
                 if (membersError) throw membersError;
 
-                // profiles 테이블에서 모든 기수의 모든 프로필 가져오기 (이메일 정보, careers, educations 포함)
+                // profiles 테이블에서 프로필 가져오기 (기수는 members에 있음, careers, educations 포함)
                 const { data: profiles, error: profilesError } = await client
                     .from('profiles')
                     .select(`
                         id, 
                         name, 
-                        batch, 
                         email, 
                         phone, 
-                        company, 
-                        position, 
                         profile_image_url, 
                         member_id, 
                         careers(id, company, position, start_year, end_year, order),
                         educations(id)
                     `)
-                    .order('batch', { ascending: true })
                     .order('name', { ascending: true });
 
                 if (profilesError) throw profilesError;
@@ -318,8 +314,6 @@
                         batch: member.batch,
                         phone: member.phone, // members 테이블의 phone 사용
                         email: profile?.email || null, // profiles 테이블의 email (없으면 null)
-                        company: profile?.company || null,
-                        position: profile?.position || null,
                         profile_image_url: profile?.profile_image_url || null,
                         is_registered: member.is_registered || false,
                         show_email: showEmail, // 다른 기수에게 이메일 공개 여부
@@ -362,7 +356,8 @@
                     if (searchTerm) {
                         const filtered = allProfiles.filter(p => 
                             p.name?.toLowerCase().includes(searchTerm) ||
-                            p.company?.toLowerCase().includes(searchTerm) ||
+                            p.latest_career?.company?.toLowerCase().includes(searchTerm) ||
+                            p.latest_career?.position?.toLowerCase().includes(searchTerm) ||
                             (p.batch === userBatch && p.email?.toLowerCase().includes(searchTerm)) ||
                             (p.batch === userBatch && p.phone?.includes(searchTerm))
                         );
@@ -497,10 +492,6 @@
                                             <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-2">
                                                 ${escapeHtml(member.latest_career.company || '')}${member.latest_career.company && member.latest_career.position ? ', ' : ''}${escapeHtml(member.latest_career.position || '')}
                                             </p>
-                                        ` : (member.company || member.position) ? `
-                                            <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-2">
-                                                ${escapeHtml(member.company || '')}${member.company && member.position ? ', ' : ''}${escapeHtml(member.position || '')}
-                                            </p>
                                         ` : ''}
                                         ${member.email ? `
                                             <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-1">
@@ -517,10 +508,6 @@
                                         ${member.latest_career ? `
                                             <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-2">
                                                 ${escapeHtml(member.latest_career.company || '')}${member.latest_career.company && member.latest_career.position ? ', ' : ''}${escapeHtml(member.latest_career.position || '')}
-                                            </p>
-                                        ` : (member.company || member.position) ? `
-                                            <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal line-clamp-2">
-                                                ${escapeHtml(member.company || '')}${member.company && member.position ? ', ' : ''}${escapeHtml(member.position || '')}
                                             </p>
                                         ` : ''}
                                         ${canShowEmail && member.email ? `

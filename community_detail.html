@@ -180,7 +180,7 @@
                     .from('posts')
                     .select(`
                         *,
-                        profiles:author_id (*),
+                        profiles:author_id (*, members(batch)),
                         post_links (*)
                     `)
                     .eq('id', postId)
@@ -189,6 +189,31 @@
                 if (error) throw error;
                 
                 postData = post;
+
+                // 작성자 최신 경력 (careers 테이블) 조회
+                let authorCareerText = '';
+                if (post.profiles?.id) {
+                    const { data: authorCareers } = await client
+                        .from('careers')
+                        .select('company, position, order, end_year, start_year')
+                        .eq('profile_id', post.profiles.id)
+                        .order('order', { ascending: true });
+                    if (authorCareers && authorCareers.length > 0) {
+                        const sorted = [...authorCareers].sort((a, b) => {
+                            const oA = a.order != null ? a.order : 999;
+                            const oB = b.order != null ? b.order : 999;
+                            if (oA !== oB) return oA - oB;
+                            if (!a.end_year && b.end_year) return -1;
+                            if (a.end_year && !b.end_year) return 1;
+                            if (a.end_year && b.end_year) return (parseInt(b.end_year) || 0) - (parseInt(a.end_year) || 0);
+                            return 0;
+                        });
+                        const c = sorted[0];
+                        const co = c.company || '';
+                        const po = c.position || '';
+                        authorCareerText = co && po ? `${escapeHtml(co)}, ${escapeHtml(po)}` : escapeHtml(co || po);
+                    }
+                }
 
                 // 작성자 정보 표시
                 const authorSection = document.getElementById('postAuthorSection');
@@ -201,10 +226,10 @@
                             <div class="flex items-center gap-1.5">
                                 <p class="text-text-primary-light dark:text-text-primary-dark text-base font-semibold leading-normal">
                                     ${escapeHtml(post.profiles?.name || '익명')}</p>
-                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${post.profiles?.batch || '?'}기</span>
+                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${(post.profiles?.members?.batch ?? post.profiles?.members?.[0]?.batch) || '?'}기</span>
                             </div>
                             <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal">
-                                ${escapeHtml(post.profiles?.company || '')}${post.profiles?.position ? ', ' + escapeHtml(post.profiles.position) : ''} · ${formatDate(post.created_at)}</p>
+                                ${authorCareerText ? authorCareerText + ' · ' : ''}${formatDate(post.created_at)}</p>
                         </div>
                     </div>
                 `;
@@ -278,7 +303,7 @@
                     .from('comments')
                     .select(`
                         *,
-                        profiles:author_id (*)
+                        profiles:author_id (*, members(batch))
                     `)
                     .eq('post_id', postId)
                     .order('created_at', { ascending: true });
@@ -357,7 +382,7 @@
                         <div class="flex items-center gap-1.5 justify-between">
                             <div class="flex items-center gap-1.5">
                                 <p class="text-text-primary-light dark:text-text-primary-dark text-sm font-semibold">${escapeHtml(comment.profiles?.name || '익명')}</p>
-                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${comment.profiles?.batch || '?'}기</span>
+                                <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${(comment.profiles?.members?.batch ?? comment.profiles?.members?.[0]?.batch) || '?'}기</span>
                             </div>
                             ${isAuthor ? `
                                 <button class="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary" onclick="showCommentMenu('${comment.id}', ${hasReplies})">

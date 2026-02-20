@@ -144,10 +144,10 @@
             });
 
             try {
-                // 프로필 및 개인정보 설정 로드
+                // 프로필 및 개인정보 설정 로드 (기수는 members 테이블)
                 const { data: profile, error: profileError } = await client
                     .from('profiles')
-                    .select('*, privacy_settings(*)')
+                    .select('*, privacy_settings(*), members(batch, phone)')
                     .eq('id', user.id)
                     .single();
 
@@ -155,8 +155,8 @@
 
                 const privacySettings = profile.privacy_settings || {};
 
-                // 기수 정보 (자기 자신이므로 항상 같은 기수)
-                const userBatch = profile.batch;
+                // 기수 정보 (members 테이블)
+                const userBatch = profile?.members?.batch ?? profile?.members?.[0]?.batch ?? '';
 
                 // 연락처 정보: 같은 기수면 항상 공개, 다른 기수면 설정 확인
                 // 자기 자신의 프로필이므로 항상 공개
@@ -194,9 +194,9 @@
                     nameEl.textContent = profile.name || '이름 없음';
                 }
                 
-                // 최신 경력 정보 가져오기 (order가 가장 작은 것)
-                let displayCompany = profile.company || '';
-                let displayPosition = profile.position || '';
+                // 최신 경력 정보 가져오기 (careers 테이블, order가 가장 작은 것)
+                let displayCompany = '';
+                let displayPosition = '';
                 
                 if (careers && careers.length > 0) {
                     const sortedCareers = [...careers].sort((a, b) => {
@@ -241,7 +241,7 @@
                         <span class="material-symbols-outlined text-xl text-primary">phone_iphone</span>
                         <div class="flex flex-col flex-1">
                             <p class="text-sm font-normal text-gray-500 dark:text-gray-400">휴대폰</p>
-                            <p class="text-sm font-medium">${escapeHtml(profile.phone || '미등록')}</p>
+                            <p class="text-sm font-medium">${escapeHtml((profile?.members?.phone ?? profile?.members?.[0]?.phone) || profile?.phone || '미등록')}</p>
                         </div>
                     `;
                     contactCard.appendChild(phoneItem);

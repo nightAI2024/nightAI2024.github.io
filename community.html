@@ -237,10 +237,8 @@
                                 profiles:author_id (
                                     id,
                                     name,
-                                    batch,
-                                    company,
-                                    position,
-                                    profile_image_url
+                                    profile_image_url,
+                                    members(batch)
                                 )
                             `)
                             .eq('is_deleted', false)
@@ -319,10 +317,8 @@
                             profiles:author_id (
                                 id,
                                 name,
-                                batch,
-                                company,
-                                position,
-                                profile_image_url
+                                profile_image_url,
+                                members(batch)
                             )
                         `)
                         .eq('is_deleted', false)
@@ -396,10 +392,8 @@
                             profiles:author_id (
                                 id,
                                 name,
-                                batch,
-                                company,
-                                position,
-                                profile_image_url
+                                profile_image_url,
+                                members(batch)
                             )
                         `)
                         .eq('is_deleted', false)
@@ -438,10 +432,8 @@
                             profiles:author_id (
                                 id,
                                 name,
-                                batch,
-                                company,
-                                position,
-                                profile_image_url
+                                profile_image_url,
+                                members(batch)
                             )
                         `)
                         .eq('is_deleted', false)
@@ -580,9 +572,9 @@
             }));
 
             const postsHTML = postsWithCounts.map(post => {
-                // 최신 경력 정보 또는 프로필의 기본 정보 사용
-                const company = post.latestCareer?.company || post.profiles?.company || '';
-                const position = post.latestCareer?.position || post.profiles?.position || '';
+                // 최신 경력 정보만 사용 (careers 테이블)
+                const company = post.latestCareer?.company || '';
+                const position = post.latestCareer?.position || '';
                 const careerText = company && position ? `${company}, ${position}` : (company || position || '');
                 
                 return `
@@ -593,7 +585,7 @@
                             ${createProfileAvatar(post.profiles)}
                         </div>
                         <span
-                            class="mt-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${post.profiles?.batch || '?'}기</span>
+                            class="mt-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">${(post.profiles?.members?.batch ?? post.profiles?.members?.[0]?.batch) || '?'}기</span>
                     </div>
                     <div class="flex flex-col flex-1 gap-2">
                         <div class="flex items-center gap-2">
