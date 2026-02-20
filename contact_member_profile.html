@@ -157,8 +157,8 @@
                     .eq('id', currentUser.id)
                     .single();
 
-                // 프로필 로드 (기수는 members 조인)
-                const { data: profile, error: profileError } = await client
+                // 프로필 로드 (URL의 id = 프로필 id). 한 회원에 프로필 2개(이메일·구글)일 수 있음 → created_at 가장 오래된 것 사용
+                const { data: profileByUrl, error: profileError } = await client
                     .from('profiles')
                     .select('*, members(batch, phone)')
                     .eq('id', memberId)
@@ -166,8 +166,35 @@
 
                 if (profileError) throw profileError;
 
+                let profile = profileByUrl;
+                let displayProfileId = memberId;
+                if (profileByUrl?.member_id) {
+                    const { data: sameMemberProfiles } = await client
+                        .from('profiles')
+                        .select('id, created_at')
+                        .eq('member_id', profileByUrl.member_id)
+                        .order('created_at', { ascending: true });
+                    if (sameMemberProfiles && sameMemberProfiles.length > 1) {
+                        const primaryId = sameMemberProfiles[0].id;
+                        if (primaryId !== memberId) {
+                            const { data: primaryProfile } = await client
+                                .from('profiles')
+                                .select('*, members(batch, phone)')
+                                .eq('id', primaryId)
+                                .single();
+                            if (primaryProfile) {
+                                profile = primaryProfile;
+                                displayProfileId = primaryId;
+                                if (window.history && window.history.replaceState) {
+                                    window.history.replaceState(null, '', '?id=' + primaryId);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // 프로필 조회 Slack 알림 전송 (본인 프로필 제외, 비동기, 실패해도 무시)
-                if (currentUser.id !== memberId) {
+                if (currentUser.id !== displayProfileId) {
                     try {
                         const currentUserName = currentUserProfile?.name || '익명';
                         const currentUserBatch = currentUserProfile?.members?.batch ?? currentUserProfile?.members?.[0]?.batch;
@@ -198,11 +225,11 @@
                     }
                 }
 
-                // 개인정보 공개 설정 별도로 로드 (더 안정적)
+                // 개인정보 공개 설정 별도로 로드 (표시용 프로필 id 기준)
                 let { data: privacySettingsData, error: settingsError } = await client
                     .from('privacy_settings')
                     .select('*')
-                    .eq('profile_id', memberId)
+                    .eq('profile_id', displayProfileId)
                     .single();
 
                 // privacy_settings가 없으면 null로 처리 (나중에 기본값 적용)
@@ -231,20 +258,20 @@
                 const canShowPhone = isSameBatch || (privacySettings?.show_phone === true);
                 const canShowEmail = isSameBatch || (privacySettings?.show_email === true);
 
-                // 경력 정보
+                // 경력 정보 (표시용 프로필 기준)
                 const { data: careers, error: careersError } = await client
                     .from('careers')
                     .select('*')
-                    .eq('profile_id', memberId)
+                    .eq('profile_id', displayProfileId)
                     .order('order', { ascending: true });
 
                 if (careersError) throw careersError;
 
-                // 학력 정보
+                // 학력 정보 (표시용 프로필 기준)
                 const { data: educations, error: educationsError } = await client
                     .from('educations')
                     .select('*')
-                    .eq('profile_id', memberId)
+                    .eq('profile_id', displayProfileId)
                     .order('order', { ascending: true });
 
                 if (educationsError) throw educationsError;
