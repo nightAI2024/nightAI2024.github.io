@@ -201,6 +201,27 @@ async function addMember(member) {
   return data;
 }
 
+async function getMemberById(id) {
+  const client = initSupabase();
+  if (!client) throw new Error('Supabase 초기화 실패');
+  if (!(await isAdmin())) throw new Error('관리자 권한이 필요합니다.');
+
+  const { data: member, error } = await client
+    .from('members')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+
+  const { data: profiles } = await client
+    .from('profiles')
+    .select('id, name, email')
+    .eq('member_id', id);
+
+  return { ...member, profiles: profiles || [] };
+}
+
 async function updateMember(id, updates) {
   const client = initSupabase();
   if (!client) throw new Error('Supabase 초기화 실패');
@@ -209,11 +230,30 @@ async function updateMember(id, updates) {
   const payload = {};
   if (updates.name !== undefined) payload.name = String(updates.name).trim();
   if (updates.batch !== undefined) payload.batch = String(updates.batch).trim();
-  if (updates.phone !== undefined) payload.phone = normalizePhone(updates.phone);
+  if (updates.phone !== undefined) {
+    const phone = normalizePhone(updates.phone);
+    if (phone.length < 10 || phone.length > 11) {
+      throw new Error('휴대폰 번호는 10~11자리 숫자여야 합니다.');
+    }
+    payload.phone = phone;
+  }
   if (updates.birth_date !== undefined) {
     const birth = normalizeBirthDate(updates.birth_date);
     if (!birth) throw new Error('생년월일 형식이 올바르지 않습니다.');
     payload.birth_date = birth;
+  }
+  if (updates.is_registered !== undefined) {
+    payload.is_registered = Boolean(updates.is_registered);
+  }
+
+  if (!Object.keys(payload).length) {
+    throw new Error('수정할 내용이 없습니다.');
+  }
+
+  if (!payload.name || !payload.batch) {
+    // partial update일 수 있으므로 빈 문자열만 막음
+    if (payload.name !== undefined && !payload.name) throw new Error('이름이 필요합니다.');
+    if (payload.batch !== undefined && !payload.batch) throw new Error('기수가 필요합니다.');
   }
 
   const { data, error } = await client
@@ -224,6 +264,15 @@ async function updateMember(id, updates) {
     .single();
 
   if (error) throw error;
+
+  // 이름 변경 시 연동된 프로필 이름도 맞춤
+  if (payload.name) {
+    await client
+      .from('profiles')
+      .update({ name: payload.name, updated_at: new Date().toISOString() })
+      .eq('member_id', id);
+  }
+
   return data;
 }
 

@@ -150,9 +150,60 @@
                         </select>
                     </div>
                     <p id="memberCount" class="text-xs text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                    <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">멤버를 클릭하면 세부 정보를 수정할 수 있습니다.</p>
                     <div id="memberList" class="space-y-2"></div>
                 </div>
             </section>
+
+            <!-- 멤버 수정 모달 -->
+            <div id="editMemberModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div class="bg-white dark:bg-foreground-dark rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div class="sticky top-0 flex items-center justify-between gap-3 border-b border-border-light dark:border-border-dark bg-white dark:bg-foreground-dark px-4 py-3 rounded-t-2xl">
+                        <h3 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">멤버 수정</h3>
+                        <button type="button" id="closeEditMemberModal" class="flex size-9 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    <form id="editMemberForm" class="p-4 space-y-3">
+                        <input type="hidden" id="editMemberId" />
+                        <div id="editMemberMeta" class="text-xs text-text-secondary-light dark:text-text-secondary-dark space-y-1"></div>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">이름</span>
+                            <input id="editMemberName" required class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">생년월일</span>
+                            <input id="editMemberBirth" required class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="1990-01-15 또는 19900115" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">휴대폰</span>
+                            <input id="editMemberPhone" required maxlength="11" class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="01012345678" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">기수</span>
+                            <input id="editMemberBatch" required list="batchOptions" class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" />
+                        </label>
+                        <label class="flex items-center gap-2 rounded-lg border border-border-light dark:border-border-dark px-3 py-3">
+                            <input id="editMemberRegistered" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary" />
+                            <div>
+                                <p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">가입 완료</p>
+                                <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">체크 해제 시 해당 정보로 다시 회원가입할 수 있습니다.</p>
+                            </div>
+                        </label>
+                        <div class="flex gap-2 pt-2">
+                            <button type="button" id="editMemberDeleteBtn" class="hidden rounded-lg border border-red-500 text-red-500 font-semibold px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-900/20">
+                                삭제
+                            </button>
+                            <button type="button" id="cancelEditMemberBtn" class="flex-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-text-primary-light dark:text-text-primary-dark font-semibold py-3 text-sm">
+                                취소
+                            </button>
+                            <button type="submit" id="saveEditMemberBtn" class="flex-1 rounded-lg bg-primary text-white font-semibold py-3 text-sm hover:bg-primary/90">
+                                저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- 관리자 탭 -->
             <section id="tab-admins" class="p-4 space-y-4 hidden">
@@ -222,8 +273,113 @@
                 e.target.value = e.target.value.replace(/[^\d-]/g, '');
             });
 
+            document.getElementById('closeEditMemberModal').addEventListener('click', closeEditMemberModal);
+            document.getElementById('cancelEditMemberBtn').addEventListener('click', closeEditMemberModal);
+            document.getElementById('editMemberModal').addEventListener('click', (e) => {
+                if (e.target.id === 'editMemberModal') closeEditMemberModal();
+            });
+            document.getElementById('editMemberForm').addEventListener('submit', onSaveEditMember);
+            document.getElementById('editMemberDeleteBtn').addEventListener('click', onDeleteFromEditModal);
+            document.getElementById('editMemberPhone').addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+            document.getElementById('editMemberBirth').addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^\d-]/g, '');
+            });
+
             await Promise.all([loadBatchOptions(), loadMembers(), loadAdmins()]);
         });
+
+        let editingMemberCache = null;
+
+        function openEditMemberModal() {
+            const modal = document.getElementById('editMemberModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditMemberModal() {
+            const modal = document.getElementById('editMemberModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            editingMemberCache = null;
+        }
+
+        async function openMemberEditor(memberId) {
+            try {
+                const member = await getMemberById(memberId);
+                editingMemberCache = member;
+
+                document.getElementById('editMemberId').value = member.id;
+                document.getElementById('editMemberName').value = member.name || '';
+                document.getElementById('editMemberBirth').value = member.birth_date || '';
+                document.getElementById('editMemberPhone').value = member.phone || '';
+                document.getElementById('editMemberBatch').value = member.batch || '';
+                document.getElementById('editMemberRegistered').checked = !!member.is_registered;
+
+                const profiles = Array.isArray(member.profiles) ? member.profiles : (member.profiles ? [member.profiles] : []);
+                const linked = profiles.filter(Boolean);
+                const metaEl = document.getElementById('editMemberMeta');
+                metaEl.innerHTML = linked.length
+                    ? `<p>연동 계정: ${linked.map((p) => escapeHtml(p.email || p.name || p.id)).join(', ')}</p>`
+                    : '<p>연동된 가입 계정 없음</p>';
+
+                const deleteBtn = document.getElementById('editMemberDeleteBtn');
+                if (member.is_registered) {
+                    deleteBtn.classList.add('hidden');
+                } else {
+                    deleteBtn.classList.remove('hidden');
+                }
+
+                openEditMemberModal();
+            } catch (error) {
+                showError(error.message || '멤버 정보를 불러오지 못했습니다.');
+            }
+        }
+
+        async function onSaveEditMember(e) {
+            e.preventDefault();
+            const id = document.getElementById('editMemberId').value;
+            const btn = document.getElementById('saveEditMemberBtn');
+            btn.disabled = true;
+            btn.textContent = '저장 중...';
+
+            try {
+                await updateMember(id, {
+                    name: document.getElementById('editMemberName').value,
+                    birth_date: document.getElementById('editMemberBirth').value,
+                    phone: document.getElementById('editMemberPhone').value,
+                    batch: document.getElementById('editMemberBatch').value,
+                    is_registered: document.getElementById('editMemberRegistered').checked,
+                });
+                showSuccess('멤버 정보가 수정되었습니다.');
+                closeEditMemberModal();
+                await loadMembers();
+                await loadBatchOptions();
+            } catch (error) {
+                showError(error.message || '수정에 실패했습니다.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '저장';
+            }
+        }
+
+        function onDeleteFromEditModal() {
+            const id = document.getElementById('editMemberId').value;
+            showConfirm('이 멤버를 명부에서 삭제할까요?', async () => {
+                try {
+                    await deleteMember(id);
+                    showSuccess('삭제되었습니다.');
+                    closeEditMemberModal();
+                    await loadMembers();
+                    await loadBatchOptions();
+                } catch (error) {
+                    showError(error.message || '삭제에 실패했습니다.');
+                }
+            });
+        }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach((btn) => {
@@ -281,7 +437,7 @@
                 }
 
                 listEl.innerHTML = data.map((m) => `
-                    <div class="flex items-start justify-between gap-3 rounded-lg border border-border-light dark:border-border-dark p-3">
+                    <div data-edit-member="${m.id}" class="flex items-start justify-between gap-3 rounded-lg border border-border-light dark:border-border-dark p-3 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <p class="font-semibold text-text-primary-light dark:text-text-primary-dark">${escapeHtml(m.name)}</p>
@@ -294,27 +450,13 @@
                                 ${escapeHtml(m.birth_date || '')} · ${escapeHtml(m.phone || '')}
                             </p>
                         </div>
-                        ${!m.is_registered ? `
-                            <button data-delete-member="${m.id}" class="shrink-0 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg p-2" title="삭제">
-                                <span class="material-symbols-outlined text-xl">delete</span>
-                            </button>
-                        ` : ''}
+                        <span class="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark shrink-0">chevron_right</span>
                     </div>
                 `).join('');
 
-                listEl.querySelectorAll('[data-delete-member]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const id = btn.getAttribute('data-delete-member');
-                        showConfirm('이 멤버를 명부에서 삭제할까요?', async () => {
-                            try {
-                                await deleteMember(id);
-                                showSuccess('삭제되었습니다.');
-                                await loadMembers();
-                                await loadBatchOptions();
-                            } catch (error) {
-                                showError(error.message || '삭제에 실패했습니다.');
-                            }
-                        });
+                listEl.querySelectorAll('[data-edit-member]').forEach((row) => {
+                    row.addEventListener('click', () => {
+                        openMemberEditor(row.getAttribute('data-edit-member'));
                     });
                 });
             } catch (error) {
