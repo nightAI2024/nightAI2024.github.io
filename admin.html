@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>관리자 - CAIO 원우회</title>
+    <meta name="description" content="CAIO 원우회 관리자 페이지">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CAIO 원우회 네트워크">
+    <meta property="og:description" content="CAIO 원우회 관리자 페이지">
+    <meta property="og:image" content="https://raw.githubusercontent.com/nightAI2024/nightAI2024.github.io/refs/heads/main/img/og_image_c.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+        .tab-btn.active {
+            color: #137fec;
+            border-bottom-color: #137fec;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "foreground-light": "#ffffff",
+                        "foreground-dark": "#1a2836",
+                        "text-primary-light": "#111418",
+                        "text-primary-dark": "#f0f2f4",
+                        "text-secondary-light": "#617589",
+                        "text-secondary-dark": "#a0b3c6",
+                        "border-light": "#e3e8ed",
+                        "border-dark": "#2c3e50"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <header class="sticky top-0 z-10 flex h-14 items-center border-b border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark px-4">
+            <button id="backBtn" class="flex size-10 shrink-0 items-center justify-center rounded-full text-text-primary-light dark:text-text-primary-dark cursor-pointer">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </button>
+            <h1 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark flex-1 text-center">관리자</h1>
+            <div class="size-10"></div>
+        </header>
+
+        <div class="flex border-b border-border-light dark:border-border-dark bg-foreground-light dark:bg-foreground-dark">
+            <button data-tab="members" class="tab-btn active flex-1 py-3 text-sm font-semibold border-b-2 border-transparent">원우회 멤버</button>
+            <button data-tab="admins" class="tab-btn flex-1 py-3 text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark border-b-2 border-transparent">관리자 설정</button>
+        </div>
+
+        <main class="flex-1 pb-10">
+            <!-- 멤버 탭 -->
+            <section id="tab-members" class="p-4 space-y-4">
+                <div class="rounded-xl bg-white dark:bg-foreground-dark border border-border-light dark:border-border-dark p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-base font-bold text-text-primary-light dark:text-text-primary-dark">멤버 추가</h2>
+                        <button id="downloadSampleBtn" class="text-sm font-semibold text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">download</span>
+                            샘플 CSV
+                        </button>
+                    </div>
+
+                    <form id="addMemberForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">이름</span>
+                            <input id="memberName" required class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="홍길동" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">생년월일</span>
+                            <input id="memberBirth" required class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="19900115 또는 1990-01-15" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">휴대폰</span>
+                            <input id="memberPhone" required class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="01012345678" maxlength="11" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">기수</span>
+                            <input id="memberBatch" required list="batchOptions" class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="예: 3기 서울" />
+                            <datalist id="batchOptions"></datalist>
+                        </label>
+                        <button type="submit" class="sm:col-span-2 rounded-lg bg-primary text-white font-semibold py-3 text-sm hover:bg-primary/90">
+                            개별 추가
+                        </button>
+                    </form>
+
+                    <div class="border-t border-border-light dark:border-border-dark pt-3 space-y-2">
+                        <p class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">CSV / Excel 일괄 추가</p>
+                        <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">필수 컬럼: name, birth_date, phone, batch (한글 헤더: 이름, 생년월일, 휴대폰, 기수)</p>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input id="bulkFile" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="flex-1 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-primary file:font-semibold" />
+                            <button id="bulkUploadBtn" class="rounded-lg border border-primary text-primary font-semibold px-4 py-2.5 text-sm hover:bg-primary/5">
+                                일괄 업로드
+                            </button>
+                        </div>
+                        <div id="bulkResult" class="hidden text-sm rounded-lg p-3 bg-background-light dark:bg-background-dark"></div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl bg-white dark:bg-foreground-dark border border-border-light dark:border-border-dark p-4 space-y-3">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="memberSearch" class="flex-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="이름 또는 휴대폰 검색" />
+                        <select id="memberBatchFilter" class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm">
+                            <option value="">전체 기수</option>
+                        </select>
+                        <select id="memberRegisteredFilter" class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm">
+                            <option value="">전체 상태</option>
+                            <option value="false">미가입</option>
+                            <option value="true">가입완료</option>
+                        </select>
+                    </div>
+                    <p id="memberCount" class="text-xs text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                    <div id="memberList" class="space-y-2"></div>
+                </div>
+            </section>
+
+            <!-- 관리자 탭 -->
+            <section id="tab-admins" class="p-4 space-y-4 hidden">
+                <div class="rounded-xl bg-white dark:bg-foreground-dark border border-border-light dark:border-border-dark p-4 space-y-3">
+                    <h2 class="text-base font-bold text-text-primary-light dark:text-text-primary-dark">관리자 지정</h2>
+                    <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">가입된 회원 프로필을 검색해 관리자 역할을 부여합니다. role이 <strong>admin</strong>인 계정만 관리 기능을 사용할 수 있습니다.</p>
+                    <div class="flex gap-2">
+                        <input id="profileSearch" class="flex-1 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-sm" placeholder="이름 또는 이메일 검색" />
+                        <button id="profileSearchBtn" class="rounded-lg bg-primary text-white font-semibold px-4 py-2.5 text-sm">검색</button>
+                    </div>
+                    <div id="profileSearchResults" class="space-y-2"></div>
+                </div>
+
+                <div class="rounded-xl bg-white dark:bg-foreground-dark border border-border-light dark:border-border-dark p-4 space-y-3">
+                    <h2 class="text-base font-bold text-text-primary-light dark:text-text-primary-dark">현재 관리자 / 운영진</h2>
+                    <div id="adminList" class="space-y-2">
+                        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">로딩 중...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/page-transition.js"></script>
+    <script>
+        let memberOffset = 0;
+        const MEMBER_PAGE_SIZE = 50;
+        let batchValues = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const ok = await requireAdmin();
+            if (!ok) return;
+
+            document.getElementById('backBtn').addEventListener('click', () => {
+                smoothNavigate('my_profile', 300);
+            });
+
+            document.querySelectorAll('.tab-btn').forEach((btn) => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            document.getElementById('downloadSampleBtn').addEventListener('click', downloadMemberSampleCsv);
+            document.getElementById('addMemberForm').addEventListener('submit', onAddMember);
+            document.getElementById('bulkUploadBtn').addEventListener('click', onBulkUpload);
+            document.getElementById('memberSearch').addEventListener('input', debounce(loadMembers, 300));
+            document.getElementById('memberBatchFilter').addEventListener('change', loadMembers);
+            document.getElementById('memberRegisteredFilter').addEventListener('change', loadMembers);
+            document.getElementById('profileSearchBtn').addEventListener('click', onSearchProfiles);
+            document.getElementById('profileSearch').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') onSearchProfiles();
+            });
+
+            document.getElementById('memberPhone').addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+            document.getElementById('memberBirth').addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^\d-]/g, '');
+            });
+
+            await Promise.all([loadBatchOptions(), loadMembers(), loadAdmins()]);
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((btn) => {
+                const active = btn.dataset.tab === tab;
+                btn.classList.toggle('active', active);
+                btn.classList.toggle('text-text-secondary-light', !active);
+                btn.classList.toggle('dark:text-text-secondary-dark', !active);
+            });
+            document.getElementById('tab-members').classList.toggle('hidden', tab !== 'members');
+            document.getElementById('tab-admins').classList.toggle('hidden', tab !== 'admins');
+        }
+
+        function debounce(fn, ms) {
+            let t;
+            return (...args) => {
+                clearTimeout(t);
+                t = setTimeout(() => fn(...args), ms);
+            };
+        }
+
+        async function loadBatchOptions() {
+            try {
+                const client = initSupabase();
+                const { data } = await client.from('members').select('batch');
+                batchValues = [...new Set((data || []).map((m) => m.batch).filter(Boolean))].sort();
+
+                const datalist = document.getElementById('batchOptions');
+                const filter = document.getElementById('memberBatchFilter');
+                datalist.innerHTML = batchValues.map((b) => `<option value="${escapeHtml(b)}"></option>`).join('');
+                filter.innerHTML = '<option value="">전체 기수</option>' +
+                    batchValues.map((b) => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        async function loadMembers() {
+            const listEl = document.getElementById('memberList');
+            const countEl = document.getElementById('memberCount');
+            listEl.innerHTML = '<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark py-4 text-center">불러오는 중...</p>';
+
+            try {
+                const { data, count } = await listMembers({
+                    search: document.getElementById('memberSearch').value,
+                    batch: document.getElementById('memberBatchFilter').value,
+                    registered: document.getElementById('memberRegisteredFilter').value,
+                    limit: MEMBER_PAGE_SIZE,
+                    offset: 0,
+                });
+
+                countEl.textContent = `총 ${count}명`;
+                if (!data.length) {
+                    listEl.innerHTML = '<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark py-4 text-center">멤버가 없습니다.</p>';
+                    return;
+                }
+
+                listEl.innerHTML = data.map((m) => `
+                    <div class="flex items-start justify-between gap-3 rounded-lg border border-border-light dark:border-border-dark p-3">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="font-semibold text-text-primary-light dark:text-text-primary-dark">${escapeHtml(m.name)}</p>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">${escapeHtml(m.batch || '')}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full ${m.is_registered ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                                    ${m.is_registered ? '가입완료' : '미가입'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                                ${escapeHtml(m.birth_date || '')} · ${escapeHtml(m.phone || '')}
+                            </p>
+                        </div>
+                        ${!m.is_registered ? `
+                            <button data-delete-member="${m.id}" class="shrink-0 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg p-2" title="삭제">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+
+                listEl.querySelectorAll('[data-delete-member]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-delete-member');
+                        showConfirm('이 멤버를 명부에서 삭제할까요?', async () => {
+                            try {
+                                await deleteMember(id);
+                                showSuccess('삭제되었습니다.');
+                                await loadMembers();
+                                await loadBatchOptions();
+                            } catch (error) {
+                                showError(error.message || '삭제에 실패했습니다.');
+                            }
+                        });
+                    });
+                });
+            } catch (error) {
+                listEl.innerHTML = `<p class="text-sm text-red-500 py-4 text-center">${escapeHtml(error.message || '목록을 불러오지 못했습니다.')}</p>`;
+            }
+        }
+
+        async function onAddMember(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            try {
+                await addMember({
+                    name: document.getElementById('memberName').value,
+                    birth_date: document.getElementById('memberBirth').value,
+                    phone: document.getElementById('memberPhone').value,
+                    batch: document.getElementById('memberBatch').value,
+                });
+                showSuccess('멤버가 추가되었습니다.');
+                e.target.reset();
+                await loadMembers();
+                await loadBatchOptions();
+            } catch (error) {
+                showError(error.message || '멤버 추가에 실패했습니다.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function onBulkUpload() {
+            const fileInput = document.getElementById('bulkFile');
+            const resultEl = document.getElementById('bulkResult');
+            const file = fileInput.files?.[0];
+            if (!file) {
+                showError('CSV 또는 Excel 파일을 선택하세요.');
+                return;
+            }
+
+            const btn = document.getElementById('bulkUploadBtn');
+            btn.disabled = true;
+            btn.textContent = '업로드 중...';
+            resultEl.classList.remove('hidden');
+            resultEl.textContent = '파일을 처리하는 중...';
+
+            try {
+                const rows = await parseMemberUploadFile(file);
+                if (!rows.length) throw new Error('추가할 데이터가 없습니다.');
+
+                const results = await bulkAddMembers(rows);
+                resultEl.innerHTML = `
+                    <p class="font-semibold text-green-700 dark:text-green-400">성공 ${results.success.length}건</p>
+                    <p class="font-semibold text-red-600 dark:text-red-400 mt-1">실패 ${results.failed.length}건</p>
+                    ${results.failed.length ? `
+                        <ul class="mt-2 space-y-1 max-h-40 overflow-y-auto text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                            ${results.failed.slice(0, 30).map((f) =>
+                                `<li>${f.row}행: ${escapeHtml(f.error)} (${escapeHtml(f.data?.name || '')})</li>`
+                            ).join('')}
+                            ${results.failed.length > 30 ? `<li>…외 ${results.failed.length - 30}건</li>` : ''}
+                        </ul>
+                    ` : ''}
+                `;
+                showSuccess(`${results.success.length}명 추가 완료`);
+                fileInput.value = '';
+                await loadMembers();
+                await loadBatchOptions();
+            } catch (error) {
+                resultEl.textContent = error.message || '업로드 실패';
+                showError(error.message || '일괄 추가에 실패했습니다.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '일괄 업로드';
+            }
+        }
+
+        async function loadAdmins() {
+            const listEl = document.getElementById('adminList');
+            try {
+                const admins = await listAdminRoles();
+                if (!admins.length) {
+                    listEl.innerHTML = '<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">등록된 관리자가 없습니다.</p>';
+                    return;
+                }
+
+                const currentUser = await getCurrentUser();
+                listEl.innerHTML = admins.map((a) => {
+                    const profile = a.profiles;
+                    const batch = profile?.members?.batch ?? profile?.members?.[0]?.batch ?? '';
+                    const isSelf = currentUser?.id === a.user_id;
+                    const roleLabel = a.role === 'admin' ? '관리자' : a.role === 'super_admin' ? '슈퍼관리자' : '운영진 배지';
+                    return `
+                        <div class="flex items-start justify-between gap-3 rounded-lg border border-border-light dark:border-border-dark p-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="font-semibold text-text-primary-light dark:text-text-primary-dark">${escapeHtml(profile?.name || '이름 없음')}</p>
+                                    ${createAdminBadge(a.display_name)}
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">${roleLabel}</span>
+                                </div>
+                                <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                                    ${escapeHtml(profile?.email || '')}${batch ? ` · ${escapeHtml(String(batch))}` : ''}
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-1 shrink-0">
+                                ${a.role !== 'admin' ? `
+                                    <button data-set-role="${a.user_id}" data-role="admin" class="text-xs font-semibold text-primary px-2 py-1 rounded hover:bg-primary/5">관리자 부여</button>
+                                ` : ''}
+                                ${a.role === 'admin' && !isSelf ? `
+                                    <button data-set-role="${a.user_id}" data-role="user" class="text-xs font-semibold text-amber-600 px-2 py-1 rounded hover:bg-amber-50">배지만 유지</button>
+                                ` : ''}
+                                ${!isSelf ? `
+                                    <button data-remove-admin="${a.user_id}" class="text-xs font-semibold text-red-500 px-2 py-1 rounded hover:bg-red-50">해제</button>
+                                ` : '<span class="text-xs text-text-secondary-light px-2 py-1">본인</span>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                listEl.querySelectorAll('[data-set-role]').forEach((btn) => {
+                    btn.addEventListener('click', async () => {
+                        try {
+                            await setAdminRole(btn.getAttribute('data-set-role'), btn.getAttribute('data-role'));
+                            showSuccess('역할이 변경되었습니다.');
+                            await loadAdmins();
+                        } catch (error) {
+                            showError(error.message || '역할 변경 실패');
+                        }
+                    });
+                });
+
+                listEl.querySelectorAll('[data-remove-admin]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        showConfirm('이 사용자의 관리자/운영진 설정을 해제할까요?', async () => {
+                            try {
+                                await removeAdminRole(btn.getAttribute('data-remove-admin'));
+                                showSuccess('해제되었습니다.');
+                                await loadAdmins();
+                            } catch (error) {
+                                showError(error.message || '해제 실패');
+                            }
+                        });
+                    });
+                });
+            } catch (error) {
+                listEl.innerHTML = `<p class="text-sm text-red-500">${escapeHtml(error.message || '관리자 목록을 불러오지 못했습니다.')}</p>`;
+            }
+        }
+
+        async function onSearchProfiles() {
+            const q = document.getElementById('profileSearch').value.trim();
+            const resultsEl = document.getElementById('profileSearchResults');
+            if (!q) {
+                showError('검색어를 입력하세요.');
+                return;
+            }
+
+            resultsEl.innerHTML = '<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">검색 중...</p>';
+            try {
+                const profiles = await searchProfilesForAdmin(q);
+                if (!profiles.length) {
+                    resultsEl.innerHTML = '<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">검색 결과가 없습니다.</p>';
+                    return;
+                }
+
+                resultsEl.innerHTML = profiles.map((p) => {
+                    const batch = p.members?.batch ?? p.members?.[0]?.batch ?? '';
+                    return `
+                        <div class="flex items-center justify-between gap-3 rounded-lg border border-border-light dark:border-border-dark p-3">
+                            <div>
+                                <p class="font-semibold text-sm text-text-primary-light dark:text-text-primary-dark">${escapeHtml(p.name || '')}${batch ? ` · ${escapeHtml(String(batch))}` : ''}</p>
+                                <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">${escapeHtml(p.email || '')}</p>
+                            </div>
+                            <button data-grant-admin="${p.id}" class="shrink-0 rounded-lg bg-primary text-white text-xs font-semibold px-3 py-2">관리자 지정</button>
+                        </div>
+                    `;
+                }).join('');
+
+                resultsEl.querySelectorAll('[data-grant-admin]').forEach((btn) => {
+                    btn.addEventListener('click', async () => {
+                        try {
+                            await setAdminRole(btn.getAttribute('data-grant-admin'), 'admin', '운영진');
+                            showSuccess('관리자로 지정되었습니다.');
+                            document.getElementById('profileSearch').value = '';
+                            resultsEl.innerHTML = '';
+                            await loadAdmins();
+                        } catch (error) {
+                            showError(error.message || '지정에 실패했습니다.');
+                        }
+                    });
+                });
+            } catch (error) {
+                resultsEl.innerHTML = `<p class="text-sm text-red-500">${escapeHtml(error.message || '검색 실패')}</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

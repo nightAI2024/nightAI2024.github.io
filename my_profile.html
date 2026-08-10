@@ -120,6 +120,7 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/profile-utils.js"></script>
     <script src="js/toast.js"></script>
@@ -360,15 +361,30 @@
                     educationCard.appendChild(privateEducation);
                 }
 
-                // 로그아웃 버튼 추가
+                // 관리자 메뉴 / 로그아웃 버튼
                 const logoutBtnContainer = document.createElement('div');
-                logoutBtnContainer.className = 'px-4 pb-4';
+                logoutBtnContainer.className = 'px-4 pb-4 space-y-3';
                 logoutBtnContainer.innerHTML = `
+                    <button id="adminPageBtn" class="hidden w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+                        관리자 페이지
+                    </button>
                     <button id="logoutBtn" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold">
                         로그아웃
                     </button>
                 `;
                 document.querySelector('main').appendChild(logoutBtnContainer);
+
+                try {
+                    if (typeof isAdmin === 'function' && await isAdmin()) {
+                        const adminBtn = document.getElementById('adminPageBtn');
+                        adminBtn.classList.remove('hidden');
+                        adminBtn.classList.add('flex');
+                        adminBtn.addEventListener('click', () => smoothNavigate('admin', 300));
+                    }
+                } catch (e) {
+                    // ignore
+                }
 
                 document.getElementById('logoutBtn').addEventListener('click', async () => {
                     showConfirm('로그아웃 하시겠습니까?', async () => {
