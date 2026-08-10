@@ -176,18 +176,23 @@
         </main>
     </div>
 
-    <script src="js/config.js"></script>
-    <script src="js/supabase.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/toast.js"></script>
-    <script src="js/page-transition.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/supabase.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/page-transition.js"></script>
     <script>
         let memberOffset = 0;
         const MEMBER_PAGE_SIZE = 50;
         let batchValues = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof requireAdmin !== 'function') {
+                console.error('admin.js 로드 실패: requireAdmin 없음');
+                alert('관리자 스크립트를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+                return;
+            }
             const ok = await requireAdmin();
             if (!ok) return;
 
